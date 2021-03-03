@@ -1,3 +1,10 @@
+/*
+Based on the tutorial provided by https://gabrieltanner.org/blog/dicord-music-bot
+*/
+
+console.log('INITIALIZING UD');
+console.log(`Node.js Version: ${process.version}`);
+
 // import/include dependencies
 const Discord = require('discord.js');
 const {
@@ -18,6 +25,8 @@ var current_volume = 0.25;
 // same length as serverQueue.song (their indices refer to same element in videoqueue)
 // stores the username of who entered the !play command
 const authorQueue = [];
+
+
 
 // listeners
 client.once('ready', () => {
@@ -124,6 +133,7 @@ client.on('message', async message => {
 
 //async
 async function execute(message, serverQueue, authorQueue) {
+    console.log('////////////////////////////////////////////////////////////////');
     console.log('EXECUTE FUNCTION CALLED');
 	const args = message.content.split(' ');
     if (args.length === 1){
@@ -403,7 +413,7 @@ function pause(message, serverQueue) {
     console.log('################################################################');
     console.log("PAUSE FUNCTION CALLED");
     console.log('################################################################');
-    return;
+    //return;
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     if (!play_status) return message.channel.send('Already paused.');
     try{
@@ -430,11 +440,11 @@ function resume(message, serverQueue) {
     console.log('################################################################');
     console.log("RESUME FUNCTION CALLED");
     console.log('################################################################');
-    return;
+    //return;
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     if (play_status) return message.channel.send('No video to resume.');
     try{
-        serverQueue.connection.dispatcher.resume();
+        serverQueue.connection.dispatcher.resume(true);
         console.log("RESUME FUNCTION NORMAL EXIT");
         play_status = true;
         console.log('################################################################');
@@ -460,7 +470,9 @@ function vup(message, dispatcher) {
     if (current_volume >= 2) {
         current_volume = 2;
     }
-    dispatcher.setVolumeLogarithmic(current_volume);
+    if (dispatcher != null){
+        dispatcher.setVolumeLogarithmic(current_volume);
+    }
     text_value = round2decimal(current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -473,7 +485,9 @@ function vUP(message, dispatcher) {
     if (current_volume >= 2) {
         current_volume = 2;
     }
-    dispatcher.setVolumeLogarithmic(current_volume);
+    if (dispatcher != null){
+        dispatcher.setVolumeLogarithmic(current_volume);
+    }
     text_value = round2decimal(current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -486,7 +500,9 @@ function vdown(message, dispatcher) {
     if (current_volume <= 0) {
         current_volume = 0;
     }
-    dispatcher.setVolumeLogarithmic(current_volume);
+    if (dispatcher != null){
+        dispatcher.setVolumeLogarithmic(current_volume);
+    }
     text_value = round2decimal(current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -499,7 +515,9 @@ function vDOWN(message, dispatcher) {
     if (current_volume <= 0) {
         current_volume = 0;
     }
-    dispatcher.setVolumeLogarithmic(current_volume);
+    if (dispatcher != null){
+        dispatcher.setVolumeLogarithmic(current_volume);
+    }
     text_value = round2decimal(current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -508,7 +526,9 @@ function vDOWN(message, dispatcher) {
 function vreset(message, dispatcher){
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     current_volume = initial_volume;
-    dispatcher.setVolumeLogarithmic(current_volume);
+    if (dispatcher != null){
+        dispatcher.setVolumeLogarithmic(current_volume);
+    }
     text_value = round2decimal(current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }

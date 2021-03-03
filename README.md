@@ -1,2 +1,2 @@
 # Ud
-A simple youtube-based Discord music bot.
+A simple youtube-based (ytdl) content streaming Discord bot.

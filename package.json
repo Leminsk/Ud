@@ -1,0 +1,22 @@
+{
+  "name": "ud",
+  "version": "1.0.0",
+  "description": "Youtube Audio Player Bot",
+  "main": "ud.js",
+  "author": "Matheus Lemos",
+  "dependencies": {
+    "discord.js": "latest",
+    "ffmpeg": "latest",
+    "ffmpeg-binaries": "latest",
+    "ffmpeg-static": "latest",
+    "opusscript": "latest",
+    "ytdl-core": "latest",
+    "ytdl-core-discord": "latest",
+    "ytdl-getinfo": "latest"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "license": "ISC"
+}
