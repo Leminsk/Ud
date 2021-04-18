@@ -1,5 +1,12 @@
 # Ud
-A simple youtube-based (ytdl) content streaming Discord bot.
+Another simple youtube-based (ytdl) content streaming Discord bot.  
+
+## Main Requirements  
+- Node.js 14 (because ytdl-core below has some functionalities, like `resume()` and `pause()`, that break in Node.js 15 and above as of 2021 April)
+- `discord.js`
+- `ytdl-core`
+- `discord-youtube-api`
+- A Google API Key
 
 ## Commands  
 All commands need to be preceeded with a '!'(exclamation mark). These are the commands that Ud can currently undersstand:  
