@@ -45,12 +45,12 @@ const help_text = `These are the commands that I can understand:
 ---------------------+--------------------------------------------------------------------------
 !play [YouTube Link] | plays video, or adds to queue; YTLink after a space and no brackets
 ---------------------+--------------------------------------------------------------------------
-!pause               | DEPRECATED DO NOT USE pauses video
-!resume              | DEPRECATED DO NOT USE resumes playing from previous pause command
+!pause               | (Node.js 14) pauses video
+!resume              | (Node.js 14) resumes playing from previous pause command
 !queue               | displays video queue
 !skip                | skips the current video; plays the next one in the queue if there is any
 !remove[number]      | removes video from queue based on its queue number; no space, no brackets
-!flush               | clears the queue, except for the video being played (0)
+!flush               | clears the queue, except for the video being played (number 0)
 !stop                | stops playing, exits the channel, clears the queue
 ---------------------+--------------------------------------------------------------------------
 !vup                 | increases volume by 20% (x1.2)
@@ -63,7 +63,9 @@ const help_text = `These are the commands that I can understand:
 !help                | displays this text message
 ---------------------+--------------------------------------------------------------------------`
 
+// role specific commands
 //!masterreset         | use this if you think I might have stopped working properly
+//!detailedstatus      | display some variables on chat
 
 // read messages //async
 client.on('message', async message => {
@@ -123,7 +125,10 @@ client.on('message', async message => {
     } else if (message.content.startsWith(`${prefix}masterreset`)) {
         masterreset(message, serverQueue, authorQueue, current_volume);
         return;
-    } else if (message.content === `${prefix}`) {
+    } else if (message.content.startsWith(`${prefix}detailedstatus`)) {
+        detailedstatus(message, serverQueue, authorQueue, current_volume);
+        return;
+    }else if (message.content === `${prefix}`) {
         return;
     } else {
         message.channel.send('Invalid command.')
@@ -269,37 +274,99 @@ async function play(message, guild, song, authorQueue) {
     return message.channel.send(`Now Playing...\n`+ '```\n' + song.title + '\n```' + `Current Queue:\n` + '```\n' + vq +'\n```');
 }
 
-////////////////////////////////////////////////////
-////////////////////////////////////////////////////
-////////////////// COMMANDS BELOW //////////////////
-////////////////////////////////////////////////////
-////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+////////////////// C O M M A N D S   B E L O W  //////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 
+// role specific
 // attempts to reset variables and queues
 // should be used whenever some error halts the normal workflow
 function masterreset(message, serverQueue, authorQueue, current_volume){
     console.log('################################################################');
     console.log("MASTERRESET FUNCTION CALLED");
-    if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    try{
-        serverQueue.connection.dispatcher.end();
-        console.log('Attempting to reset variables.');
-        //serverQueue = queue.get(message.guild.id); 
-        authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
-        serverQueue.songs = [];
-        play_status = false;
-        current_volume = initial_volume;
-        console.log('Attempted to reset variables.');
-        console.log('################################################################');
-        message.channel.send('Attempted a master reset.');
-        message.member.voice.channel.leave();
-        return;
-    } catch (err) {
-        console.log("**********************************************");
-        console.log("MASTERRESET FUNCTION FAILED");
+    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot')) {
         console.log("----------------------------------------------");
-        console.log(err);
-        console.log("**********************************************");
+        console.log('Called by: ');
+        console.log(message.author["lastMessage"]["member"]["user"]);
+        console.log("----------------------------------------------");
+        try{
+            if(typeof serverQueue !== 'undefined'){
+                serverQueue.connection.dispatcher.end();
+                serverQueue.songs = serverQueue.splice(0, serverQueue.length);
+            }
+            
+            console.log('Attempting to reset variables.');
+            //serverQueue = queue.get(message.guild.id); 
+            authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
+            play_status = false;
+            current_volume = initial_volume;
+            console.log('Attempted to reset variables.');
+            console.log('################################################################');
+            message.channel.send('Attempted a master reset.');
+            message.member.voice.channel.leave();
+            return;
+        } catch (err) {
+            console.log("**********************************************");
+            console.log("MASTERRESET FUNCTION FAILED");
+            console.log("----------------------------------------------");
+            console.log(err);
+            console.log("**********************************************");
+            console.log('################################################################');
+        }
+    } else {
+        message.channel.send('Access denied.');
+        console.log(message.author["lastMessage"]["member"]["user"]);
+        console.log('User does not have \'Debugador del bot\' role.');
+        console.log('MASTERRESET FUNCTION NORMAL EXIT.');
+        console.log('################################################################');
+    }
+    
+}
+
+// role specific
+// displays some variavles on console for debugging purposes
+function detailedstatus(message, serverQueue, authorQueue, current_volume){
+    console.log('################################################################');
+    console.log("DETAILEDSTATUS FUNCTION CALLED");
+    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot')) {
+        console.log("----------------------------------------------");
+        console.log('Called by: ');
+        console.log(message.author["lastMessage"]["member"]["user"]);
+        console.log("----------------------------------------------");
+        try{
+            console.log('serverQueue: ');
+            console.log(serverQueue);
+            console.log("----------------------------------------------");
+            console.log('authorQueue: ');
+            console.log(authorQueue);
+            console.log("----------------------------------------------");
+            console.log('play_status: ');
+            console.log(play_status);
+            console.log("----------------------------------------------");
+            console.log('current_volume: ');
+            console.log(current_volume);
+            console.log("----------------------------------------------");
+
+            console.log('DETAILEDSTATUS FUNCTION NORMAL EXIT.');
+            console.log('################################################################');
+            return;
+        } catch (err) {
+            console.log("**********************************************");
+            console.log("DETAILEDSTATUS FUNCTION FAILED");
+            console.log("----------------------------------------------");
+            console.log(err);
+            console.log("**********************************************");
+            console.log('################################################################');
+        }
+    } else {
+        message.channel.send('Access denied.');
+        console.log(message.author["lastMessage"]["member"]["user"]);
+        console.log('User does not have \'Debugador del bot\' role.');
+        console.log('DETAILEDSTATUS FUNCTION NORMAL EXIT.');
         console.log('################################################################');
     }
 }
