@@ -282,13 +282,14 @@ function masterreset(message, serverQueue, authorQueue, current_volume){
     console.log("MASTERRESET FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     try{
-        //serverQueue.connection.dispatcher.end();
+        serverQueue.connection.dispatcher.end();
         console.log('Attempting to reset variables.');
-        serverQueue = queue.get(message.guild.id); 
+        //serverQueue = queue.get(message.guild.id); 
         authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
-        //serverQueue.songs = [];
+        serverQueue.songs = [];
         play_status = false;
         current_volume = initial_volume;
+        console.log('Attempted to reset variables.');
         console.log('################################################################');
         message.channel.send('Attempted a master reset.');
         message.member.voice.channel.leave();
@@ -309,42 +310,50 @@ function videoqueue(message, serverQueue, return_message, authorQueue){
     console.log('################################################################');
     console.log("VIDEOQUEUE FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    let vq = "";
-    let user_lengths = [];
-    
-    for (var i=0; i<authorQueue.length; i++){
-        user_lengths.push(authorQueue[i].length);
-    }
-    let max_username_length = Math.max.apply(Math, user_lengths);
+    try{
+        let vq = "";
+        let user_lengths = [];
+        
+        for (var i=0; i<authorQueue.length; i++){
+            user_lengths.push(authorQueue[i].length);
+        }
+        let max_username_length = Math.max.apply(Math, user_lengths);
 
+        for (var m in serverQueue){
+            for (var i=0; i<serverQueue[m].length; i++){
+                var converted_time = secondsToHms(serverQueue[m][i].time);
 
-    for (var m in serverQueue){
-        for (var i=0; i<serverQueue[m].length; i++){
-            var converted_time = secondsToHms(serverQueue[m][i].time);
+                space_padding = "";
+                for (var j = 0; j<max_username_length - authorQueue[i].length; j++){
+                    space_padding += " ";
+                }
 
-            space_padding = "";
-            for (var j = 0; j<max_username_length - authorQueue[i].length; j++){
-                space_padding += " ";
+                vq = vq + "|  " + i + "  |  " + authorQueue[i] + space_padding + "  |  " + "(" + converted_time + ") "+ serverQueue[m][i].title + "\n";
             }
-
-            vq = vq + "|  " + i + "  |  " + authorQueue[i] + space_padding + "  |  " + "(" + converted_time + ") "+ serverQueue[m][i].title + "\n";
         }
-    }
 
-    if (return_message === true){
-        if (vq.length === 0) {
-            console.log("VIDEOQUEUE FUNCTION EMPTY QUEUE EXIT");
-            console.log('################################################################');
-            return message.channel.send('The queue is empty.');
+        if (return_message === true){
+            if (vq.length === 0) {
+                console.log("VIDEOQUEUE FUNCTION EMPTY QUEUE EXIT");
+                console.log('################################################################');
+                return message.channel.send('The queue is empty.');
+            } else {
+                console.log("VIDEOQUEUE FUNCTION QUEUE DISPLAY EXIT");
+                console.log('################################################################');
+                return message.channel.send('```\n' + String.raw`${vq}` + '\n```');
+            }
         } else {
-            console.log("VIDEOQUEUE FUNCTION QUEUE DISPLAY EXIT");
+            console.log("VIDEOQUEUE FUNCTION VALUE RETURNED");
             console.log('################################################################');
-            return message.channel.send('```\n' + String.raw`${vq}` + '\n```');
+            return vq;
         }
-    } else {
-        console.log("VIDEOQUEUE FUNCTION VALUE RETURNED");
+    } catch (err) {
+        console.log("**********************************************");
+        console.log("VIDEOQUEUE FUNCTION FAILED");
+        console.log("----------------------------------------------");
+        console.log(err);
+        console.log("**********************************************");
         console.log('################################################################');
-        return vq;
     }
     
 }
