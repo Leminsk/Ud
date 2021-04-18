@@ -328,7 +328,7 @@ function masterreset(message, serverQueue, authorQueue, current_volume){
 }
 
 // role specific
-// displays some variavles on console for debugging purposes
+// displays some variavles on console and on chat for debugging purposes
 function detailedstatus(message, serverQueue, authorQueue, current_volume){
     console.log('################################################################');
     console.log("DETAILEDSTATUS FUNCTION CALLED");
@@ -338,16 +338,22 @@ function detailedstatus(message, serverQueue, authorQueue, current_volume){
         console.log(message.author["lastMessage"]["member"]["user"]);
         console.log("----------------------------------------------");
         try{
-            console.log('serverQueue: ');
+            let dashes = '\n----------------------------------------------\n';
+            let detailed_text = '```\n'+'serverQueue:\n'+serverQueue+dashes+'authorQueue:\n'+authorQueue+dashes+'play_status:\n'+play_status+dashes+'current_volume:\n'+current_volume+dashes+'\n```';
+
+            message.channel.send(detailed_text);
+
+            ///////////////////////////////////////////////////////////////////////
+            console.log('serverQueue:');
             console.log(serverQueue);
-            console.log("----------------------------------------------");
-            console.log('authorQueue: ');
+            console.log('----------------------------------------------');
+            console.log('authorQueue:');
             console.log(authorQueue);
             console.log("----------------------------------------------");
-            console.log('play_status: ');
+            console.log('play_status:');
             console.log(play_status);
             console.log("----------------------------------------------");
-            console.log('current_volume: ');
+            console.log('current_volume:');
             console.log(current_volume);
             console.log("----------------------------------------------");
 
