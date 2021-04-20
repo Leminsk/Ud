@@ -14,7 +14,7 @@ const {
 const ytdl = require('ytdl-core');
 const YouTube = require('discord-youtube-api');
 // maybe this doesn't need to be global?
-const youtube = new YouTube('yOurGOOgleAPIKEYgoesHere');
+const youtube = new YouTube('AIzaSyAEmy6UkIU-1PuUct-uslvwcPTNpqdcKW8');
 
 const client = new Discord.Client();
 
@@ -371,7 +371,7 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, current_
         console.log(message.author["lastMessage"]["member"]["user"]);
         console.log("----------------------------------------------");
         try{
-            if(typeof serverQueue !== 'undefined'){
+            if(typeof serverQueue !== 'undefined' || serverQueue.connection.dispatcher === null){
                 serverQueue.connection.dispatcher.end();
                 serverQueue.songs = serverQueue.splice(0, serverQueue.length);
             }
@@ -767,13 +767,14 @@ function remove(message, serverQueue, authorQueue){
             return message.channel.send('Can\'t remove song currently playing. (use !skip for that)');
         } else if (value < serverQueue.songs.length){
             var song_name = serverQueue.songs[value].title;
+            var song_requester = authorQueue[value];
             serverQueue.songs.splice(value, 1);
             authorQueue.splice(value, 1);
             console.log('################################################################');
-            return message.channel.send(`Removed from the Queue:\n| Song ${value} | ${song_name}`);
+            return message.channel.send("```Removed from the Queue:\n| " + value + " | " + song_requester + " | " + song_name + "\n```");
         } else {
             console.log('################################################################');
-            return message.channel.send(`Could not find | Song ${value} | in the Queue.`);
+            return message.channel.send('Could not find number' + ```\n``` + value + ```\n``` + 'in the Queue.');
         }
     } else {
         console.log('################################################################');
