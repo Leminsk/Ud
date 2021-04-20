@@ -14,7 +14,7 @@ const {
 const ytdl = require('ytdl-core');
 const YouTube = require('discord-youtube-api');
 // maybe this doesn't need to be global?
-const youtube = new YouTube('AIzaSyAEmy6UkIU-1PuUct-uslvwcPTNpqdcKW8');
+const youtube = new YouTube('YourGoogleAPIKEYHere');
 
 const client = new Discord.Client();
 
