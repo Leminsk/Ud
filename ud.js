@@ -200,10 +200,6 @@ async function execute(message, serverQueue, authorQueue, timestampQueue) {
     } else {
         try {
             videosearch = await youtube.searchVideos(args[args.length-1].toString().replace(/,/g,' '));
-            console.log('videosearch:');
-            console.log(videosearch);
-            console.log(videosearch.url);
-            console.log('----------------------------------');
             songInfo = await ytdl.getInfo(videosearch.url);
         } catch (err){
             console.log(`Error in function 'execute'. User may have given a bad argument, ytdl.getInfo went wrong, songInfo.videoDetails went wrong or searchVideos went wrong.`)
