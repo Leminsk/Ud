@@ -18,7 +18,11 @@ console.log(`ytdl-core Version: ${ytdl.version}`);
 const YouTube = require('discord-youtube-api');
 console.log(`discord-youtube-api Version: ${YouTube.version}`); // should print 'undefined'
 // maybe this doesn't need to be global?
+<<<<<<< HEAD
 const youtube = new YouTube('GoogleAPIKeyHere');
+=======
+const youtube = new YouTube('YourGoogleAPIKEYHere');
+>>>>>>> d4058f298289c0f3a884db243db0b21e614136d2
 
 const client = new Discord.Client();
 
