@@ -5,16 +5,20 @@ Based on the tutorial provided by https://gabrieltanner.org/blog/dicord-music-bo
 console.log('INITIALIZING UD');
 console.log(`Node.js Version: ${process.version}`);
 
+
 // import/include dependencies
 const Discord = require('discord.js');
+console.log(`discord.js Version: ${Discord.version}`);
 const {
 	prefix,
 	token,
 } = require('./config.json');
 const ytdl = require('ytdl-core');
+console.log(`ytdl-core Version: ${ytdl.version}`);
 const YouTube = require('discord-youtube-api');
+console.log(`discord-youtube-api Version: ${YouTube.version}`); // should print 'undefined'
 // maybe this doesn't need to be global?
-const youtube = new YouTube('AIzaSyAEmy6UkIU-1PuUct-uslvwcPTNpqdcKW8');
+const youtube = new YouTube('GoogleAPIKeyHere');
 
 const client = new Discord.Client();
 
@@ -36,7 +40,7 @@ const timestampQueue = [];
 
 // listeners
 client.once('ready', () => {
-    console.log('Ud is READY!');
+    console.log('Ud READY!');
 });
 client.once('reconnecting', () => {
     console.log('Reconnecting...');
@@ -371,9 +375,11 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, current_
         console.log(message.author["lastMessage"]["member"]["user"]);
         console.log("----------------------------------------------");
         try{
-            if(typeof serverQueue !== 'undefined' || serverQueue.connection.dispatcher === null){
-                serverQueue.connection.dispatcher.end();
-                serverQueue.songs = serverQueue.splice(0, serverQueue.length);
+            if(typeof serverQueue !== 'undefined'){
+                if(serverQueue.connection.dispatcher === null){
+                    serverQueue.connection.dispatcher.end();
+                    serverQueue.songs = serverQueue.splice(0, serverQueue.length);
+                }
             }
             
             console.log('Attempting to reset variables.');
@@ -383,9 +389,17 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, current_
             play_status = false;
             current_volume = initial_volume;
             console.log('Attempted to reset variables.');
+            try{
+                message.member.voice.channel.leave();
+            } catch (err) { 
+                console.log("**********************************************");
+                console.log("Failed to leave voice channel. Maybe Ud wasn't in one to begin with?");
+                console.log("----------------------------------------------");
+                console.log(err);
+                console.log("**********************************************");
+            }
             console.log('################################################################');
             message.channel.send('Attempted a master reset.');
-            message.member.voice.channel.leave();
             return;
         } catch (err) {
             console.log("**********************************************");
@@ -432,8 +446,8 @@ function detailedstatus(message, serverQueue, authorQueue, timestampQueue, curre
                 }
             }
             let dashes = '\n----------------------------------------------\n';
-            let detailed_text = '```\n'+'serverQueue.songs:'+display_songs+dashes+'authorQueue:\n'+authorQueue+dashes+'timestampQueue:\n'+timestampQueue+dashes+'play_status:\n'+play_status+dashes+'current_volume:\n'+current_volume+dashes+'\n```';
-
+            let detailed_text = '```\n'+'serverQueue.songs:'+display_songs+dashes+'authorQueue:\n'+authorQueue+dashes+'timestampQueue:\n'+timestampQueue+dashes+'play_status:\n'+play_status+dashes+'current_volume:\n'+current_volume+dashes;
+            detailed_text += `Node.js Version: ${process.version}\n`+`discord.js Version: ${Discord.version}\n`+`ytdl-core Version: ${ytdl.version}\n`+`discord-youtube-api Version: ${YouTube.version}`+'\n```';
             message.channel.send(detailed_text);
 
             ///////////////////////////////////////////////////////////////////////
@@ -451,6 +465,11 @@ function detailedstatus(message, serverQueue, authorQueue, timestampQueue, curre
             console.log("----------------------------------------------");
             console.log('current_volume:');
             console.log(current_volume);
+            console.log("----------------------------------------------");
+            console.log(`Node.js Version: ${process.version}`);
+            console.log(`discord.js Version: ${Discord.version}`);
+            console.log(`ytdl-core Version: ${ytdl.version}`);
+            console.log(`discord-youtube-api Version: ${YouTube.version}`);
             console.log("----------------------------------------------");
 
             console.log('DETAILEDSTATUS FUNCTION NORMAL EXIT.');
@@ -764,7 +783,8 @@ function remove(message, serverQueue, authorQueue){
             return message.channel.send('Invalid song number.');
         } else if (value === 0) {
             console.log('################################################################');
-            return message.channel.send('Can\'t remove song currently playing. (use !skip for that)');
+            //return message.channel.send('Can\'t remove song currently playing. (use !skip for that)');
+            skip(message, serverQueue, authorQueue);
         } else if (value < serverQueue.songs.length){
             var song_name = serverQueue.songs[value].title;
             var song_requester = authorQueue[value];
