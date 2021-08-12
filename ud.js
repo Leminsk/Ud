@@ -55,7 +55,7 @@ client.once('disconnect', () => {
 
 
 // help text may need to be broken into smaller parts because of discord's 2000 character limit per message
-const help_text = `These are the commands that Ud can understand:
+const help_text1 = `These are the commands that Ud can understand:
 ---------------------------------+--------------------------------------------------------------------------
 !play [YouTube Link] / [search]  | plays video, or adds to queue; insert either a link or a seach query
 ex1: !play https://www.youtub... | links must be spaced
@@ -70,7 +70,9 @@ ex3: !play "baka mitai"          | double quotes also work fine
 !flush                           | clears the queue, except for the video being played (number 0)
 !stop                            | stops playing, exits the channel, clears queue
 !loop [number] [repetitions]     | loop based on number; if no second argument, loop indefinitely
----------------------------------+--------------------------------------------------------------------------
+`;
+
+const help_text2 = `---------------------------------+--------------------------------------------------------------------------
 !vup                             | increases volume by 20% (x1.2)
 !vUP                             | increases volume by 50% (x1.5)
 !vdown                           | decreases volume by 20% (x0.8)
@@ -79,7 +81,9 @@ ex3: !play "baka mitai"          | double quotes also work fine
 !vreset                          | resets volume to default value of 25
 ---------------------------------+--------------------------------------------------------------------------
 !help                            | displays this text message
----------------------------------+--------------------------------------------------------------------------`
+---------------------------------+--------------------------------------------------------------------------`;
+
+const help_text = [help_text1, help_text2];
 
 // role specific commands
 //!masterreset         | use this if you think I might have stopped working properly
@@ -139,7 +143,10 @@ client.on('message', async message => {
         remove(message, serverQueue, authorQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}help`)) {
-        return message.channel.send('```\n' + help_text + '\n```');
+        for(const ht of help_text){
+            message.channel.send('```\n' + ht + '\n```');
+        }
+        return;
     } else if (message.content.startsWith(`${prefix}masterreset`)) {
         masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, false);
         return;
