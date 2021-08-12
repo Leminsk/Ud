@@ -23,7 +23,7 @@ const youtube = new YouTube('GoogleAPIKeyHere');
 const client = new Discord.Client();
 
 // save songs/videos
-const queue = new Map();
+var queue = new Map();
 
 // sound volume variables
 const initial_volume = 0.25;
@@ -36,6 +36,10 @@ const authorQueue = [];
 // same length as serverQueue.song (their indices refer to same element in videoqueue)
 // stores timestamps for the START of streams
 const timestampQueue = [];
+
+// same length as serverQueue.song (their indices refer to same element in videoqueue)
+// stores a status indicating whether content will loop
+const loopMarkersQueue = [];
 
 
 // listeners
@@ -62,15 +66,16 @@ ex3: !play "baka mitai"          | double quotes also work fine
 !resume                          | (Node.js 14) resumes playing from previous pause command
 !queue                           | displays video queue
 !skip                            | skips current video; plays the next one in the queue if there is any
-!remove[number]                  | removes video from queue based on its queue number
+!remove [number]                 | removes video from queue based on its queue number
 !flush                           | clears the queue, except for the video being played (number 0)
 !stop                            | stops playing, exits the channel, clears queue
+!loop [number] [repetitions]     | loop based on number; if no second argument, loop indefinitely
 ---------------------------------+--------------------------------------------------------------------------
 !vup                             | increases volume by 20% (x1.2)
 !vUP                             | increases volume by 50% (x1.5)
 !vdown                           | decreases volume by 20% (x0.8)
 !vDOWN                           | decreases volume by 50% (x0.5)
-!vol[value]                      | sets volume to value; no space, no brackets; value between 0 ~ 200
+!vol [value]                     | sets volume to value; no brackets; value between 0 ~ 200
 !vreset                          | resets volume to default value of 25
 ---------------------------------+--------------------------------------------------------------------------
 !help                            | displays this text message
@@ -92,13 +97,13 @@ client.on('message', async message => {
     
     // check for commands
     if (message.content.startsWith(`${prefix}play`)) {
-        execute(message, serverQueue, authorQueue, timestampQueue);
+        execute(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}skip`)) {
-        skip(message, serverQueue, authorQueue);
+        skip(message, serverQueue, authorQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}stop`)) {
-        stop(message, serverQueue, authorQueue);
+        stop(message, serverQueue, authorQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}pause`)) {
         pause(message, serverQueue);
@@ -107,18 +112,18 @@ client.on('message', async message => {
         resume(message, serverQueue);
         return;
     } else if (message.content.startsWith(`${prefix}queue`)) {
-        videoqueue(message, serverQueue, true, authorQueue);
+        videoqueue(message, serverQueue, true, authorQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}vup`)) {
         vup(message, dispatcher);
         return;
-    } else if (message.content.startsWith(`${prefix}vUP`)) {
+    } else if (message.content.startsWith(`${prefix}vUP`) || message.content.startsWith(`${prefix}VUP`)) {
         vUP(message, dispatcher);
         return;
     } else if (message.content.startsWith(`${prefix}vdown`)) {
         vdown(message, dispatcher);
         return;
-    } else if (message.content.startsWith(`${prefix}vDOWN`)) {
+    } else if (message.content.startsWith(`${prefix}vDOWN`) || message.content.startsWith(`${prefix}VDOWN`)) {
         vDOWN(message, dispatcher);
         return;
     } else if (message.content.startsWith(`${prefix}vreset`)) {
@@ -128,23 +133,26 @@ client.on('message', async message => {
         volume(message, dispatcher);
         return;
     } else if (message.content.startsWith(`${prefix}flush`)) {
-        flush(message, serverQueue, authorQueue, timestampQueue);
+        flush(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}remove`)) {
-        remove(message, serverQueue, authorQueue);
+        remove(message, serverQueue, authorQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}help`)) {
         return message.channel.send('```\n' + help_text + '\n```');
     } else if (message.content.startsWith(`${prefix}masterreset`)) {
-        masterreset(message, serverQueue, authorQueue, timestampQueue, current_volume);
+        masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, false);
         return;
     } else if (message.content.startsWith(`${prefix}detailedstatus`)) {
-        detailedstatus(message, serverQueue, authorQueue, timestampQueue, current_volume);
+        detailedstatus(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume);
         return;
-    }else if (message.content === `${prefix}`) {
+    } else if (message.content.startsWith(`${prefix}loop`)) {
+        loop(message, serverQueue, authorQueue, loopMarkersQueue);
+        return;
+    } else if (message.content === `${prefix}`) {
         return;
     } else {
-        message.channel.send('Invalid command.')
+        console.log('Invalid command entered.');
     }
 });
 
@@ -153,7 +161,7 @@ async function searchYouTube(args) {
 }
 
 //async
-async function execute(message, serverQueue, authorQueue, timestampQueue) {
+async function execute(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue) {
     console.log('////////////////////////////////////////////////////////////////');
     console.log('EXECUTE FUNCTION CALLED');
     let args = [];
@@ -230,15 +238,17 @@ async function execute(message, serverQueue, authorQueue, timestampQueue) {
     console.log('serverQueue BELOW:')
 
     authorQueue.push(message.author["lastMessage"]["member"]["user"]["username"]);//authorQueue[authorQueue.length] = message.author["username"];
+    loopMarkersQueue.push(0);
     if (args.length === 3){
         timestampQueue.push(args[1]);
     } else {
         timestampQueue.push('0');
     }
 
-	if (!serverQueue) {
+
+	if (!serverQueue || serverQueue.songs.length === 0) {
         // Creating the contract for our queue
-		const queueContruct = {
+		const queueContract = {
 			textChannel: message.channel,
 			voiceChannel: voiceChannel,
 			connection: null,
@@ -247,17 +257,17 @@ async function execute(message, serverQueue, authorQueue, timestampQueue) {
 			playing: true,
 		};
         // Setting the queue using our contract
-		queue.set(message.guild.id, queueContruct);
+		queue.set(message.guild.id, queueContract);
         // Pushing the song to our songs array
-        queueContruct.songs.push(song);
+        queueContract.songs.push(song);
         console.log(message.author["lastMessage"]["member"]["user"]["username"]);
     
 		try {
             // Here we try to join the voicechat and save our connection into our object.
 			var connection = await voiceChannel.join();
-            queueContruct.connection = connection;
+            queueContract.connection = connection;
             // Calling the play function to start a song
-            play(message, message.guild, queueContruct.songs[0], authorQueue, args, timestampQueue);
+            play(message, message.guild, queueContract.songs[0], authorQueue, args, timestampQueue, loopMarkersQueue);
 		} catch (err) {
             // Printing the error message if the bot fails to join the voicechat
             console.log(`ERROR in function 'execute'. Either couldn't join voiceChannel or play function went wrong in some way.`)
@@ -269,11 +279,12 @@ async function execute(message, serverQueue, authorQueue, timestampQueue) {
         // maybe implement nickname
         // 
         console.log('serverQueue was empty.');
-        console.log('serverQueue.songs is undefined. Using queueContruct.songs for now.');
+        console.log('serverQueue.songs is undefined. Using queueContract.songs for now.');
         console.log('////////////////////////////////////////////////////////////////');
-        console.log(queueContruct.songs);
+        console.log(queueContract.songs);
         console.log(authorQueue);
         console.log(timestampQueue);
+        console.log(loopMarkersQueue);
         console.log('////////////////////////////////////////////////////////////////');
 	} else {
         serverQueue.songs.push(song);
@@ -287,8 +298,9 @@ async function execute(message, serverQueue, authorQueue, timestampQueue) {
         console.log(serverQueue.songs);
         console.log(authorQueue);
         console.log(timestampQueue);
+        console.log(loopMarkersQueue);
         console.log('////////////////////////////////////////////////////////////////');
-        let vq = videoqueue(message, serverQueue, false, authorQueue);
+        let vq = videoqueue(message, serverQueue, false, authorQueue, loopMarkersQueue);
 		return message.channel.send(`Added to the queue: ${song.title}\n\n Current Queue:\n` + '```\n' + vq +'\n```');
 	}
 
@@ -297,7 +309,7 @@ async function execute(message, serverQueue, authorQueue, timestampQueue) {
 // needs to be global to change the volume
 var dispatcher;
 
-async function play(message, guild, song, authorQueue, args, timestampQueue) {
+async function play(message, guild, song, authorQueue, args, timestampQueue, loopMarkersQueue) {
     console.log('################################################################');
     console.log("PLAY FUNCTION CALLED");
 	const serverQueue = await queue.get(guild.id);
@@ -316,28 +328,50 @@ async function play(message, guild, song, authorQueue, args, timestampQueue) {
         dispatcher = serverQueue.connection.play(ytdl(song.url, {begin: args[1]/* , filter: 'audioonly', dlChunkSize: 0 */}))
 		.on('finish', () => { //old 'end' event
 			console.log(`EVENT 'finish' DETECTED. Stream ended, attempting to go to next one.`);
-            serverQueue.songs.shift();
-            authorQueue.shift();
-            timestampQueue.shift();
-            play(message, guild, serverQueue.songs[0], authorQueue, 2, timestampQueue);
+            if(loopMarkersQueue[0] > 0){
+                loopMarkersQueue[0]--
+            } else if(loopMarkersQueue[0] === 0) {
+                serverQueue.songs.shift();
+                authorQueue.shift();
+                timestampQueue.shift();
+                loopMarkersQueue.shift();
+            } else {
+                console.log(`On indefinite loop...`);
+            }
+            play(message, guild, serverQueue.songs[0], authorQueue, 2, timestampQueue, loopMarkersQueue);
         })
         .on('error', error => {
             console.log(`EVENT 'error' DETECTED. ERROR on dispatcher = serverQueue.connection.play(ytdl(song.url))`);
 			console.error(error);
+            console.log(`Attempting a reset.`);
+            masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, true);
         });
     } else {
         // no timestamp given              /* old playStream */
         dispatcher = serverQueue.connection.play(ytdl(song.url/* , {filter: 'audioonly', dlChunkSize: 0} */))
 		.on('finish', () => { //old 'end' event
 			console.log(`EVENT 'finish' DETECTED. Stream ended, attempting to go to next one.`);
-            serverQueue.songs.shift();
-            authorQueue.shift();
-            timestampQueue.shift();
-            play(message, guild, serverQueue.songs[0], authorQueue, 2, timestampQueue);
+            if(skip_loop === true){
+                loopMarkersQueue[0] = 0;
+                skip_loop = false;
+            }
+            if(loopMarkersQueue[0] > 0){
+                loopMarkersQueue[0]--;
+            } else if(loopMarkersQueue[0] === 0) {
+                serverQueue.songs.shift();
+                authorQueue.shift();
+                timestampQueue.shift();
+                loopMarkersQueue.shift();
+            } else { // negative
+                console.log(`On indefinite loop...`);
+            }
+            play(message, guild, serverQueue.songs[0], authorQueue, 2, timestampQueue, loopMarkersQueue);
         })
         .on('error', error => {
             console.log(`EVENT 'error' DETECTED. ERROR on dispatcher = serverQueue.connection.play(ytdl(song.url))`);
 			console.error(error);
+            console.log(`Attempting a reset.`);
+            masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, true);
         });
         /*.on('finish', () => {
 			console.log('Stream finished, attempting to go to next one.');
@@ -349,7 +383,7 @@ async function play(message, guild, song, authorQueue, args, timestampQueue) {
     
     play_status = true;
     dispatcher.setVolumeLogarithmic(current_volume);
-    let vq = videoqueue(message, serverQueue, false, authorQueue);
+    let vq = videoqueue(message, serverQueue, false, authorQueue, loopMarkersQueue);
     console.log("PLAY FUNCTION NORMAL EXIT");
     console.log('################################################################');
     return message.channel.send(`Now Playing...\n`+ '```\n' + song.title + '\n```' + `Current Queue:\n` + '```\n' + vq +'\n```');
@@ -366,26 +400,42 @@ async function play(message, guild, song, authorQueue, args, timestampQueue) {
 // role specific
 // attempts to reset variables and queues
 // should be used whenever some error halts the normal workflow
-function masterreset(message, serverQueue, authorQueue, timestampQueue, current_volume){
+function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, inner_call){
     console.log('################################################################');
     console.log("MASTERRESET FUNCTION CALLED");
-    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot')) {
+    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot') || inner_call===true) {
         console.log("----------------------------------------------");
         console.log('Called by: ');
-        console.log(message.author["lastMessage"]["member"]["user"]);
+        if(inner_call===true){
+            console.log("INNER CODE");
+        }else{
+            console.log(message.author["lastMessage"]["member"]["user"]);
+        }
         console.log("----------------------------------------------");
         try{
             if(typeof serverQueue !== 'undefined'){
-                if(serverQueue.connection.dispatcher === null){
+                if(serverQueue.connection.dispatcher !== null){
                     serverQueue.connection.dispatcher.end();
-                    serverQueue.songs = serverQueue.splice(0, serverQueue.length);
+                    serverQueue.songs.splice(0, serverQueue.songs.length);
                 }
             }
             
             console.log('Attempting to reset variables.');
-            //serverQueue = queue.get(message.guild.id); 
-            authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
-            timestampQueue = timestampQueue.splice(0, timestampQueue.length);
+            //serverQueue = queue.get(message.guild.id);
+            try{
+                flush(message, serverQueue, authorQueue, timestampQueue);
+            } catch (err) {
+                console.log(err);
+            }
+            try{
+                skip(message, serverQueue, authorQueue, loopMarkersQueue);
+            } catch (err) {
+                console.log(err);
+            }
+            // flush doesn't clear everything
+            authorQueue.splice(0, authorQueue.length);// stupid method of clearing array because js is a little bit of a pain in the rear
+            timestampQueue.splice(0, timestampQueue.length);
+            loopMarkersQueue.splice(0, loopMarkersQueue.length);
             play_status = false;
             current_volume = initial_volume;
             console.log('Attempted to reset variables.');
@@ -396,6 +446,9 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, current_
                 console.log("Failed to leave voice channel. Maybe Ud wasn't in one to begin with?");
                 console.log("----------------------------------------------");
                 console.log(err);
+                console.log("----------------------------------------------");
+                console.log("Retry of masterreset");
+                masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, inner_call);
                 console.log("**********************************************");
             }
             console.log('################################################################');
@@ -423,7 +476,7 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, current_
 
 // role specific
 // displays some variavles on console and on chat for debugging purposes
-function detailedstatus(message, serverQueue, authorQueue, timestampQueue, current_volume){
+function detailedstatus(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume){
     console.log('################################################################');
     console.log("DETAILEDSTATUS FUNCTION CALLED");
     if (message.member.roles.cache.some(role => role.name === 'Debugador del bot')) {
@@ -446,7 +499,12 @@ function detailedstatus(message, serverQueue, authorQueue, timestampQueue, curre
                 }
             }
             let dashes = '\n----------------------------------------------\n';
-            let detailed_text = '```\n'+'serverQueue.songs:'+display_songs+dashes+'authorQueue:\n'+authorQueue+dashes+'timestampQueue:\n'+timestampQueue+dashes+'play_status:\n'+play_status+dashes+'current_volume:\n'+current_volume+dashes;
+            let detailed_text = '```\n'+'serverQueue.songs:'+display_songs+dashes+
+                                        'authorQueue:\n'+authorQueue+dashes+
+                                        'timestampQueue:\n'+timestampQueue+dashes+
+                                        'loopMarkersQueue:\n'+loopMarkersQueue+dashes+
+                                        'play_status:\n'+play_status+dashes+
+                                        'current_volume:\n'+current_volume+dashes;
             detailed_text += `Node.js Version: ${process.version}\n`+`discord.js Version: ${Discord.version}\n`+`ytdl-core Version: ${ytdl.version}\n`+`discord-youtube-api Version: ${YouTube.version}`+'\n```';
             message.channel.send(detailed_text);
 
@@ -459,6 +517,9 @@ function detailedstatus(message, serverQueue, authorQueue, timestampQueue, curre
             console.log("----------------------------------------------");
             console.log('timestampQueue:');
             console.log(timestampQueue);
+            console.log("----------------------------------------------");
+            console.log('loopMarkersQueue:');
+            console.log(loopMarkersQueue);
             console.log("----------------------------------------------");
             console.log('play_status:');
             console.log(play_status);
@@ -496,29 +557,56 @@ function detailedstatus(message, serverQueue, authorQueue, timestampQueue, curre
 
 
 // prints song queue
-function videoqueue(message, serverQueue, return_message, authorQueue){
+function videoqueue(message, serverQueue, return_message, authorQueue, loopMarkersQueue){
     console.log('################################################################');
     console.log("VIDEOQUEUE FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     try{
         let vq = "";
         let user_lengths = [];
+        let loop_lengths = []
         
         for (var i=0; i<authorQueue.length; i++){
             user_lengths.push(authorQueue[i].length);
+            if(loopMarkersQueue[i] < 0){
+                loop_lengths.push(1);
+            } else {
+                loop_lengths.push(loopMarkersQueue[i].toString().length);
+            }
+            
         }
         let max_username_length = Math.max.apply(Math, user_lengths);
+        let max_loop_length = Math.max.apply(Math, loop_lengths);
 
         for (var m in serverQueue){
             for (var i=0; i<serverQueue[m].length; i++){
                 var converted_time = secondsToHms(serverQueue[m][i].time);
 
-                space_padding = "";
-                for (var j = 0; j<max_username_length - authorQueue[i].length; j++){
+                var space_padding = "";
+                for (var j=0; j<max_username_length - user_lengths[i].length; j++){
                     space_padding += " ";
                 }
 
-                vq = vq + "|  " + i + "  |  " + authorQueue[i] + space_padding + "  |  " + "(" + converted_time + ") "+ serverQueue[m][i].title + "\n";
+                var loop_padding = "";
+                for (var j=0; j<max_loop_length - loop_lengths[i].length; j++){
+                    loop_padding += " ";
+                }
+
+                var loop_string;
+
+                if(loopMarkersQueue[i] === -1){
+                    loop_string = "∞";
+                } else {
+                    loop_string = loopMarkersQueue[i].toString();
+                }
+
+                var index_padding = "";
+                var spaces = (serverQueue[m].length - 1).toString().length - (i).toString().length;
+                for (var j=0; j<spaces; j++){
+                    index_padding += " "
+                }
+
+                vq = vq + "|  " + index_padding + i + "  |  " + space_padding + authorQueue[i] + "  |  " + loop_padding + loop_string + "  | " + "(" + converted_time + ") "+ serverQueue[m][i].title + "\n";
             }
         }
 
@@ -548,21 +636,33 @@ function videoqueue(message, serverQueue, return_message, authorQueue){
     
 }
 
-
+// flag for forcing content on loop out of the queues
+var skip_loop = false;
 // end current song/video being played and goes to next element in queue
-function skip(message, serverQueue, authorQueue) {
+function skip(message, serverQueue, authorQueue, loopMarkersQueue) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     if (!serverQueue) return message.channel.send('There is no song that I could skip.');
     console.log('################################################################');
     console.log("SKIP FUNCTION CALLED");
     try{
-        serverQueue.connection.dispatcher.end() //.stopPlaying() replaces .end()?
-        console.log('Music ended?.');
+        try{
+            skip_loop = true;
+            serverQueue.connection.dispatcher.end() //.stopPlaying() replaces .end()?
+            console.log('Music ended?.');
+            console.log("SKIP FUNCTION NORMAL EXIT");
+            console.log('################################################################');
+        } catch (err) {
+            queue = new Map();
+            serverQueue = queue.get(message.guild.id);
+            serverQueue.songs.shift();
+            authorQueue.shift();
+            loopMarkersQueue.shift();
+            skip_loop = false;
+            //timestampQueue.shift();
+        }
         /*serverQueue.songs.shift();
         authorQueue.shift();
         play(message, message.guild, serverQueue.songs[0], authorQueue);*/
-        console.log("SKIP FUNCTION NORMAL EXIT");
-        console.log('################################################################');
         return message.channel.send('Skipping video...');
     } catch (err) {
         console.log("**********************************************");
@@ -578,13 +678,14 @@ function skip(message, serverQueue, authorQueue) {
 }
 
 // clears all queues and ends current song/video/stream
-function stop(message, serverQueue, authorQueue) {
+function stop(message, serverQueue, authorQueue, loopMarkersQueue) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     console.log('################################################################');
     console.log("STOP FUNCTION CALLED");
     try{
         serverQueue.connection.dispatcher.end(); //.stopPlaying() replaces .end()?
         authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
+        loopMarkersQueue = loopMarkersQueue.splice(0, loopMarkersQueue.length);
         serverQueue.songs = [];
         /*play(message, message.guild, serverQueue.songs[0], authorQueue);*/
         console.log('All operations halted.');
@@ -736,7 +837,10 @@ function vreset(message, dispatcher){
 function volume(message, dispatcher){
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     var value = message.content.substring(4);
-    if(/^(\-|\+)?([0-9]+(\.[0-9]+)?|Infinity)$/.test(value)){
+    if(value.charAt(0) === " "){
+        value = value.substring(1);
+    }
+    if(/^([0-9]+(\.[0-9]+)?|Infinity)$/.test(value)){
         value = Number(value);
         if (value >= 0 && value <= 200){
             current_volume = value/100;
@@ -755,7 +859,7 @@ function volume(message, dispatcher){
 }
 
 // empty the queue except for the song playing (song 0)
-function flush(message, serverQueue, authorQueue, timestampQueue){
+function flush(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue){
     console.log('################################################################');
     console.log("FLUSH FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
@@ -764,6 +868,7 @@ function flush(message, serverQueue, authorQueue, timestampQueue){
         serverQueue.songs.pop();
         authorQueue.pop();
         timestampQueue.pop()
+        loopMarkersQueue.pop()
     }
     console.log("FLUSH FUNCTION EXIT");
     console.log('################################################################');
@@ -771,25 +876,31 @@ function flush(message, serverQueue, authorQueue, timestampQueue){
 }
 
 // removes song from queue based on its index/number
-function remove(message, serverQueue, authorQueue){
+function remove(message, serverQueue, authorQueue, loopMarkersQueue){
     console.log('################################################################');
     console.log("REMOVE FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     var value = message.content.substring(7);
-    if(/^(\-|\+)?([0-9]|Infinity)$/.test(value)){
+
+    if(value === ""){
+        console.log('################################################################');
+        skip(message, serverQueue, authorQueue, loopMarkersQueue);
+    } 
+    if(value.charAt(0) === " "){
+        value = value.substring(1);
+    }
+    if(/^(([0-9])|([0-9])([0-9])))$/.test(value)){ // can only remove up to index 99
         value = Number(value);
-        if (value < 0){
-            console.log('################################################################');
-            return message.channel.send('Invalid song number.');
-        } else if (value === 0) {
+        if (value === 0) {
             console.log('################################################################');
             //return message.channel.send('Can\'t remove song currently playing. (use !skip for that)');
-            skip(message, serverQueue, authorQueue);
+            skip(message, serverQueue, authorQueue, loopMarkersQueue);
         } else if (value < serverQueue.songs.length){
             var song_name = serverQueue.songs[value].title;
             var song_requester = authorQueue[value];
             serverQueue.songs.splice(value, 1);
             authorQueue.splice(value, 1);
+            loopMarkersQueue.splice(value, 1);
             console.log('################################################################');
             return message.channel.send("```Removed from the Queue:\n| " + value + " | " + song_requester + " | " + song_name + "\n```");
         } else {
@@ -798,8 +909,59 @@ function remove(message, serverQueue, authorQueue){
         }
     } else {
         console.log('################################################################');
-        return message.channel.send('Could not get the song number.');
+        return message.channel.send('Could not get the content number.');
     }
+}
+
+
+// marks content as loopable (0: no loop, n: loop n times, -1: loop indefinitely), defaults to loop the first content indefinitely (n=-1)
+function loop(message, serverQueue, authorQueue, loopMarkersQueue){
+    console.log('################################################################');
+    console.log("LOOP FUNCTION CALLED");
+    if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
+    var value = message.content.substring(5);
+
+    if(value === "" && loopMarkersQueue.length > 0){
+        loopMarkersQueue[0] = -1
+        console.log('################################################################');
+        return message.channel.send('Looping first content indefinitely...');
+    } else if (value === "") {
+        console.log('Attempted loop, but loopMarkerQueue was empty.');
+        console.log('################################################################');
+        return;
+    }
+    if(value.charAt(0) === " "){
+        value = value.substring(1);
+    }
+    let index_repeat = value.split(" ");
+
+    if (/^(([0-9])|([0-9])([0-9]))$/.test(index_repeat[0])){ // can only remove up to index 99
+        index_repeat[0] = Number(index_repeat[0]);
+        var song_name = serverQueue.songs[index_repeat[0]].title;
+        var song_requester = authorQueue[index_repeat[0]];
+        if (index_repeat.length === 1){ // loop index indefinitely    
+            loopMarkersQueue[index_repeat[0]] = -1;
+            console.log('################################################################');
+            return message.channel.send("```Looping:\n| " + index_repeat[0] + "  |  " + song_requester + "  |  ∞  | " + song_name + "\n```");
+        } else if(index_repeat.length === 2){
+            if (/^(([0-9])|([0-9])([0-9]))$/.test(index_repeat[1])){ // check number of times to loop
+                index_repeat[1] = Number(index_repeat[1]);
+                loopMarkersQueue[index_repeat[0]] = index_repeat[1];
+                console.log('################################################################');
+                return message.channel.send("```Looping:\n|  " + index_repeat[0] + "  |  " + song_requester + "  |  " + index_repeat[1] + "  | " + song_name + "\n```");
+            } else {
+                console.log('################################################################');
+                return message.channel.send('Could not understand number of loops/repetitions.');    
+            }
+        } else {
+            console.log('################################################################');
+            return message.channel.send('Could not find number' + ```\n``` + value + ```\n``` + 'in the Queue.');
+        }
+    } else {
+        console.log('################################################################');
+        return message.channel.send('Could not get the content number.');
+    }
+
 }
 
 ///////////////////////////////////////////////////////////////
