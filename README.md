@@ -4,7 +4,7 @@ Another simple youtube-based (ytdl) audio content streaming Discord bot.
 ## Main Requirements  
 - `Node.js 14 or above` (WARNING: ytdl-core has some functionalities, like `resume()` and `pause()`, that break in Node.js 15 and above as of July 2021)
 - `discord.js` Version: 12.5.3
-- `ytdl-core` Version: 4.8.3 (as of 2021-08-12 there is a newer version of `ytdl-core`, but Ud hass still not been tested on it)
+- `ytdl-core` Version: 4.8.3 (as of 2021-08-12 there is a newer version of `ytdl-core`, but Ud has not been tested on it)
 - `discord-youtube-api`
 - `A Google API Key`
 
