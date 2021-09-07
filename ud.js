@@ -35,6 +35,7 @@ const authorQueue = [];
 
 // same length as serverQueue.song (their indices refer to same element in videoqueue)
 // stores timestamps for the START of streams
+// CURRENTLY NOT WORKING
 const timestampQueue = [];
 
 // same length as serverQueue.song (their indices refer to same element in videoqueue)
@@ -104,7 +105,7 @@ client.on('message', async message => {
         execute(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}skip`)) {
-        skip(message, serverQueue, authorQueue, loopMarkersQueue);
+        skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}stop`)) {
         stop(message, serverQueue, authorQueue, loopMarkersQueue);
@@ -140,7 +141,7 @@ client.on('message', async message => {
         flush(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}remove`)) {
-        remove(message, serverQueue, authorQueue, loopMarkersQueue);
+        remove(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}help`)) {
         for(const ht of help_text){
@@ -163,9 +164,10 @@ client.on('message', async message => {
     }
 });
 
-async function searchYouTube(args) {
-    
-}
+
+
+
+
 
 //async
 async function execute(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue) {
@@ -435,7 +437,7 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMark
                 console.log(err);
             }
             try{
-                skip(message, serverQueue, authorQueue, loopMarkersQueue);
+                skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
             } catch (err) {
                 console.log(err);
             }
@@ -646,7 +648,7 @@ function videoqueue(message, serverQueue, return_message, authorQueue, loopMarke
 // flag for forcing content on loop out of the queues
 var skip_loop = false;
 // end current song/video being played and goes to next element in queue
-function skip(message, serverQueue, authorQueue, loopMarkersQueue) {
+function skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     if (!serverQueue) return message.channel.send('There is no song that I could skip.');
     console.log('################################################################');
@@ -664,8 +666,8 @@ function skip(message, serverQueue, authorQueue, loopMarkersQueue) {
             serverQueue.songs.shift();
             authorQueue.shift();
             loopMarkersQueue.shift();
+            timestampQueue.shift();
             skip_loop = false;
-            //timestampQueue.shift();
         }
         /*serverQueue.songs.shift();
         authorQueue.shift();
@@ -693,6 +695,7 @@ function stop(message, serverQueue, authorQueue, loopMarkersQueue) {
         serverQueue.connection.dispatcher.end(); //.stopPlaying() replaces .end()?
         authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
         loopMarkersQueue = loopMarkersQueue.splice(0, loopMarkersQueue.length);
+        timestampQueue = timestampQueue.splice(0, timestampQueue.length);
         serverQueue.songs = [];
         /*play(message, message.guild, serverQueue.songs[0], authorQueue);*/
         console.log('All operations halted.');
@@ -883,7 +886,7 @@ function flush(message, serverQueue, authorQueue, timestampQueue, loopMarkersQue
 }
 
 // removes song from queue based on its index/number
-function remove(message, serverQueue, authorQueue, loopMarkersQueue){
+function remove(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue){
     console.log('################################################################');
     console.log("REMOVE FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
@@ -891,7 +894,7 @@ function remove(message, serverQueue, authorQueue, loopMarkersQueue){
 
     if(value === ""){
         console.log('################################################################');
-        skip(message, serverQueue, authorQueue, loopMarkersQueue);
+        skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
     } 
     if(value.charAt(0) === " "){
         value = value.substring(1);
@@ -901,7 +904,7 @@ function remove(message, serverQueue, authorQueue, loopMarkersQueue){
         if (value === 0) {
             console.log('################################################################');
             //return message.channel.send('Can\'t remove song currently playing. (use !skip for that)');
-            skip(message, serverQueue, authorQueue, loopMarkersQueue);
+            skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         } else if (value < serverQueue.songs.length){
             var song_name = serverQueue.songs[value].title;
             var song_requester = authorQueue[value];
