@@ -108,7 +108,7 @@ client.on('message', async message => {
         skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}stop`)) {
-        stop(message, serverQueue, authorQueue, loopMarkersQueue);
+        stop(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
         return;
     } else if (message.content.startsWith(`${prefix}pause`)) {
         pause(message, serverQueue);
@@ -687,7 +687,7 @@ function skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueu
 }
 
 // clears all queues and ends current song/video/stream
-function stop(message, serverQueue, authorQueue, loopMarkersQueue) {
+function stop(message, serverQueue, timestampQueue, authorQueue, loopMarkersQueue) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     console.log('################################################################');
     console.log("STOP FUNCTION CALLED");
@@ -700,6 +700,7 @@ function stop(message, serverQueue, authorQueue, loopMarkersQueue) {
         /*play(message, message.guild, serverQueue.songs[0], authorQueue);*/
         console.log('All operations halted.');
         play_status = false;
+        skip_loop = true;
         console.log('################################################################');
         return message.channel.send('Video has been stopped and queues have been cleared.');
     } catch (err) {
@@ -899,7 +900,7 @@ function remove(message, serverQueue, authorQueue, timestampQueue, loopMarkersQu
     if(value.charAt(0) === " "){
         value = value.substring(1);
     }
-    if(/^(([0-9])|([0-9])([0-9])))$/.test(value)){ // can only remove up to index 99
+    if(/^(([0-9])|([0-9])([0-9]))$/.test(value)){ // can only remove up to index 99
         value = Number(value);
         if (value === 0) {
             console.log('################################################################');
