@@ -15,7 +15,7 @@ Running this command below in the terminal should work just fine:
 Ud will often print its status and variables to aid a bit in monitoring its behavior.
 
 ## Commands & Instructions  
-All commands need to be preceeded by a '!'(exclamation mark). These are the commands that Ud can currently understand:  
+All commands need to be preceeded by an '!' (exclamation mark). These are the commands that Ud can currently understand:  
 - `help`: displays the help text message containing the commands
 - `play [Youtube Link] / [search query]`: plays content from a YouTube stream (live or archived). 'Stream' here means any kind of video midia from the website. 'play' must always be followed by a space character and can be used in two ways:
   - `!play https://www.youtube.com/...`: plays stream via direct link.
