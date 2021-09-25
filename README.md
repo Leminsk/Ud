@@ -8,6 +8,10 @@ Another simple youtube-based (ytdl) audio content streaming Discord bot.
 - `discord-youtube-api`
 - `A Google API Key`
 
+## Starting Ud
+The main file is `ud.js` which calls the others as modules. Running in the terminal `node ud.js` should work. 
+Ud will often print its status and variables to aid a bit in monitoring its behavior.
+
 ## Commands & Instructions  
 All commands need to be preceeded by a '!'(exclamation mark). These are the commands that Ud can currently understand:  
 - `help`: displays the help text message containing the commands
