@@ -10,9 +10,8 @@ Another simple youtube-based (ytdl) audio content streaming Discord bot.
 
 ## Starting Ud
 The main file is `ud.js` which calls the others as modules.  
-Running in the terminal  
+Running this command below in the terminal should work just fine:  
 `node ud.js`  
-should work just fine. 
 Ud will often print its status and variables to aid a bit in monitoring its behavior.
 
 ## Commands & Instructions  
