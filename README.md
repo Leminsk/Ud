@@ -41,6 +41,6 @@ All commands need to be preceeded by an '!' (exclamation mark). These are the co
 - `vreset`: resets global volume to its default value of 25.
 
 ## Role Specific Commands
-Like the previous commands, these must also be preceeded by an '!'. However these commands will only have effect if the user has a specific role called "Debugador del bot":
+Like the previous commands, these must also be preceeded by an '!'. However these commands will only have effect if the user has a specific role called "Debugador del bot" or "Debugador":
 - `detailedstatus`: displays some internal variables on chat to aid in debugging
 - `masterreset`: this will reset Ud to its initial state as if it had just started running from terminal. Use this if Ud stopped working properly but is still active (this command's function is also used internally to handle some connection errors)
