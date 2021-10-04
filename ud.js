@@ -69,14 +69,12 @@ client.once('disconnect', () => {
 
 // help text may need to be broken into smaller parts because of discord's 2000 character limit per message
 const help_text1 = `These are the commands that Ud can understand:
----------------------------------+--------------------------------------------------------------------------
+---------------------------------+---------------------------------------------------------------------
 !play [YouTube Link] / [search]  | plays video, or adds to queue; insert either a link or a seach query
 ex1: !play https://www.youtub... | links must be spaced
 ex2: !play 'darude sandstorm'    | search queries must be spaced and must have quotation marks
 ex3: !play "baka mitai"          | double quotes also work fine
----------------------------------+--------------------------------------------------------------------------
-!pause                           | (Node.js 14) pauses video
-!resume                          | (Node.js 14) resumes playing from previous pause command
+---------------------------------+---------------------------------------------------------------------
 !queue                           | displays video queue
 !skip                            | skips current video; plays the next one in the queue if there is any
 !remove [number]                 | removes video from queue based on its queue number
@@ -85,22 +83,24 @@ ex3: !play "baka mitai"          | double quotes also work fine
 !loop [number] [repetitions]     | loop based on number; if no second argument, loop indefinitely
 `;
 
-const help_text2 = `---------------------------------+--------------------------------------------------------------------------
-!vup                             | increases volume by 20% (x1.2)
+const help_text2 = `!vup                             | increases volume by 20% (x1.2)
 !vUP                             | increases volume by 50% (x1.5)
 !vdown                           | decreases volume by 20% (x0.8)
 !vDOWN                           | decreases volume by 50% (x0.5)
 !vol [value]                     | sets volume to value; no brackets; value between 0 ~ 200
 !vreset                          | resets volume to default value of 25
----------------------------------+--------------------------------------------------------------------------
-!help                            | displays this text message
----------------------------------+--------------------------------------------------------------------------`;
+---------------------------------+---------------------------------------------------------------------
+!help                            | displays this text message`;
 
 const help_text = [help_text1, help_text2];
 
 // role specific commands
 //!masterreset         | use this if you think I might have stopped working properly
 //!detailedstatus      | display some variables on chat
+
+// Node.js 14 commands
+//!pause  | pauses the stream
+//!resume | resumes from pause commands' timestamp
 
 // read messages //async
 client.on('message', async message => {
