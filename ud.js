@@ -446,12 +446,12 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMark
             console.log('Attempting to reset variables.');
             //serverQueue = queue.get(message.guild.id);
             try{
-                flush(message, serverQueue, authorQueue, timestampQueue);
+                queue_lib.flush(message, serverQueue, authorQueue, timestampQueue);
             } catch (err) {
                 console.log(err);
             }
             try{
-                skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
+                queue_lib.skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
             } catch (err) {
                 console.log(err);
             }
