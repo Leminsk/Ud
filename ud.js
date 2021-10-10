@@ -33,20 +33,20 @@ var queue = new Map();
 
 // sound volume variables
 const initial_volume = 0.25;
-var current_volume = 0.25;
+global.current_volume = 0.25;
 
 // same length as serverQueue.song (their indices refer to same element in videoqueue)
 // stores the username of who entered the !play command
-const authorQueue = [];
+global.authorQueue = [];
 
 // same length as serverQueue.song (their indices refer to same element in videoqueue)
 // stores timestamps for the START of streams
 // CURRENTLY NOT WORKING
-const timestampQueue = [];
+global.timestampQueue = [];
 
 // same length as serverQueue.song (their indices refer to same element in videoqueue)
 // stores a status indicating whether content will loop
-const loopMarkersQueue = [];
+global.loopMarkersQueue = [];
 
 // needs to be global to change the volume
 var dispatcher;
@@ -110,7 +110,7 @@ client.on('message', async message => {
     // check for prefix
     if (!message.content.startsWith(prefix)) return;
 
-    const serverQueue = queue.get(message.guild.id);
+    global.serverQueue = queue.get(message.guild.id);
     
     // check for commands
     if (message.content.startsWith(`${prefix}play`)) {
