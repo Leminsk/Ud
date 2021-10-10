@@ -1,7 +1,7 @@
 const general_lib = require('./general_functions.js');
 
 // prints song queue
-function videoqueue(message, serverQueue, return_message, authorQueue, loopMarkersQueue){
+function videoqueue(message, serverQueue, return_message){
     general_lib.displayConsoleElement('#', 64);
     console.log("VIDEOQUEUE FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
@@ -10,12 +10,12 @@ function videoqueue(message, serverQueue, return_message, authorQueue, loopMarke
         let user_lengths = [];
         let loop_lengths = []
         
-        for (var i=0; i<authorQueue.length; i++){
-            user_lengths.push(authorQueue[i].length);
-            if(loopMarkersQueue[i] < 0){
+        for (var i=0; i<global.authorQueue.length; i++){
+            user_lengths.push(global.authorQueue[i].length);
+            if(global.loopMarkersQueue[i] < 0){
                 loop_lengths.push(1);
             } else {
-                loop_lengths.push(loopMarkersQueue[i].toString().length);
+                loop_lengths.push(global.loopMarkersQueue[i].toString().length);
             }
             
         }
@@ -38,10 +38,10 @@ function videoqueue(message, serverQueue, return_message, authorQueue, loopMarke
 
                 var loop_string;
 
-                if(loopMarkersQueue[i] === -1){
+                if(global.loopMarkersQueue[i] === -1){
                     loop_string = "∞";
                 } else {
-                    loop_string = loopMarkersQueue[i].toString();
+                    loop_string = global.loopMarkersQueue[i].toString();
                 }
 
                 var index_padding = "";
@@ -50,7 +50,7 @@ function videoqueue(message, serverQueue, return_message, authorQueue, loopMarke
                     index_padding += " "
                 }
 
-                vq = vq + "|  " + index_padding + i + "  |  " + space_padding + authorQueue[i] + "  |  " + loop_padding + loop_string + "  | " + "(" + converted_time + ") "+ serverQueue[m][i].title + "\n";
+                vq = vq + "|  " + index_padding + i + "  |  " + space_padding + global.authorQueue[i] + "  |  " + loop_padding + loop_string + "  | " + "(" + converted_time + ") "+ serverQueue[m][i].title + "\n";
             }
         }
 
@@ -83,7 +83,7 @@ function videoqueue(message, serverQueue, return_message, authorQueue, loopMarke
 
 
 // end current song/video being played and goes to next element in queue
-function skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue) {
+function skip(message, serverQueue) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     if (!serverQueue) return message.channel.send('There is no song that I could skip.');
     general_lib.displayConsoleElement('#', 64);
@@ -99,14 +99,14 @@ function skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueu
             queue = new Map();
             serverQueue = queue.get(message.guild.id);
             serverQueue.songs.shift();
-            authorQueue.shift();
-            loopMarkersQueue.shift();
-            timestampQueue.shift();
+            global.authorQueue.shift();
+            global.loopMarkersQueue.shift();
+            global.timestampQueue.shift();
             global.skip_loop = false;
         }
         /*serverQueue.songs.shift();
-        authorQueue.shift();
-        play(message, message.guild, serverQueue.songs[0], authorQueue);*/
+        global.authorQueue.shift();
+        play(message, message.guild, serverQueue.songs[0], global.authorQueue);*/
         return message.channel.send('Skipping video...');
     } catch (err) {
         general_lib.displayConsoleElement('*', 46);
@@ -124,17 +124,17 @@ function skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueu
 
 
 // clears all queues and ends current song/video/stream
-function stop(message, serverQueue, timestampQueue, authorQueue, loopMarkersQueue) {
+function stop(message, serverQueue) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     general_lib.displayConsoleElement('#', 64);
     console.log("STOP FUNCTION CALLED");
     try{
         serverQueue.connection.dispatcher.end(); //.stopPlaying() replaces .end()?
-        authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
-        loopMarkersQueue = loopMarkersQueue.splice(0, loopMarkersQueue.length);
-        timestampQueue = timestampQueue.splice(0, timestampQueue.length);
+        global.authorQueue = global.authorQueue.splice(0, global.authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
+        global.loopMarkersQueue = global.loopMarkersQueue.splice(0, global.loopMarkersQueue.length);
+        global.timestampQueue = global.timestampQueue.splice(0, global.timestampQueue.length);
         serverQueue.songs = [];
-        /*play(message, message.guild, serverQueue.songs[0], authorQueue);*/
+        /*play(message, message.guild, serverQueue.songs[0], global.authorQueue);*/
         console.log('All operations halted.');
         global.play_status = false;
         global.skip_loop = true;
@@ -215,16 +215,16 @@ function resume(message, serverQueue) {
 
 
 // empty the queue except for the song playing (song 0)
-function flush(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue){
+function flush(message, serverQueue){
     general_lib.displayConsoleElement('#', 64);
     console.log("FLUSH FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     var counter = 0;
     while( counter < serverQueue.songs.length-1){
         serverQueue.songs.pop();
-        authorQueue.pop();
-        timestampQueue.pop()
-        loopMarkersQueue.pop()
+        global.authorQueue.pop();
+        global.timestampQueue.pop()
+        global.loopMarkersQueue.pop()
     }
     console.log("FLUSH FUNCTION EXIT");
     general_lib.displayConsoleElement('#', 64);
@@ -233,7 +233,7 @@ function flush(message, serverQueue, authorQueue, timestampQueue, loopMarkersQue
 
 
 // removes song from queue based on its index/number
-function remove(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue){
+function remove(message, serverQueue){
     general_lib.displayConsoleElement('#', 64);
     console.log("REMOVE FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
@@ -241,7 +241,7 @@ function remove(message, serverQueue, authorQueue, timestampQueue, loopMarkersQu
 
     if(value === ""){
         general_lib.displayConsoleElement('#', 64);
-        skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
+        skip(message, serverQueue, global.authorQueue, global.timestampQueue, global.loopMarkersQueue);
     } 
     if(value.charAt(0) === " "){
         value = value.substring(1);
@@ -251,13 +251,13 @@ function remove(message, serverQueue, authorQueue, timestampQueue, loopMarkersQu
         if (value === 0) {
             general_lib.displayConsoleElement('#', 64);
             //return message.channel.send('Can\'t remove song currently playing. (use !skip for that)');
-            skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
+            skip(message, serverQueue, global.authorQueue, global.timestampQueue, global.loopMarkersQueue);
         } else if (value < serverQueue.songs.length){
             var song_name = serverQueue.songs[value].title;
-            var song_requester = authorQueue[value];
+            var song_requester = global.authorQueue[value];
             serverQueue.songs.splice(value, 1);
-            authorQueue.splice(value, 1);
-            loopMarkersQueue.splice(value, 1);
+            global.authorQueue.splice(value, 1);
+            global.loopMarkersQueue.splice(value, 1);
             general_lib.displayConsoleElement('#', 64);
             return message.channel.send("```Removed from the Queue:\n| " + value + " | " + song_requester + " | " + song_name + "\n```");
         } else {
