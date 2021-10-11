@@ -426,7 +426,7 @@ async function play(message, guild, song, authorQueue, args, timestampQueue, loo
 function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, inner_call){
     general_lib.displayConsoleElement('#', 64);
     console.log("MASTERRESET FUNCTION CALLED");
-    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot') || inner_call===true) {
+    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot' || role.name === 'Debugador')  ||  inner_call===true) {
         general_lib.displayConsoleElement('-', 46);
         console.log('Called by: ');
         if(inner_call===true){
@@ -502,7 +502,7 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMark
 function detailedstatus(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume){
     general_lib.displayConsoleElement('#', 64);
     console.log("DETAILEDSTATUS FUNCTION CALLED");
-    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot')) {
+    if (message.member.roles.cache.some(role => role.name === 'Debugador del bot' || role.name === 'Debugador')) {
         general_lib.displayConsoleElement('-', 46);
         console.log('Called by: ');
         console.log(message.author["lastMessage"]["member"]["user"]);
