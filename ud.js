@@ -26,13 +26,10 @@ const client = new Discord.Client();
 // save songs/videos
 var queue = new Map();
 
-// sound volume variables
-const initial_volume = 0.25;
-
-
 
 
 var SHARED_GLOBALS = {
+    initial_volume : 0.25,
     current_volume : initial_volume,
     serverQueue : queue,
 
@@ -126,7 +123,7 @@ client.on('message', async message => {
         queue_lib.loop(message, SHARED_GLOBALS);
         return;
     } else if (message.content.startsWith(`${prefix}skip`)) {
-        queue_lib.skip(message, SHARED_GLOBALS);
+        queue_lib.skip(message, SHARED_GLOBALS, false);
         return;
     } else if (message.content.startsWith(`${prefix}stop`)) {
         queue_lib.stop(message, SHARED_GLOBALS);
@@ -141,7 +138,7 @@ client.on('message', async message => {
         queue_lib.videoqueue(message, SHARED_GLOBALS, true);
         return;
     } else if (message.content.startsWith(`${prefix}flush`)) {
-        queue_lib.flush(message, SHARED_GLOBALS);
+        queue_lib.flush(message, SHARED_GLOBALS, false);
         return;
     } else if (message.content.startsWith(`${prefix}remove`)) {
         queue_lib.remove(message, SHARED_GLOBALS);
@@ -182,10 +179,10 @@ client.on('message', async message => {
 
 
     } else if (message.content.startsWith(`${prefix}masterreset`)) {
-        role_debugger.masterreset(message, SHARED_GLOBALS.serverQueue, SHARED_GLOBALS.authorQueue, SHARED_GLOBALS.timestampQueue, SHARED_GLOBALS.loopMarkersQueue, SHARED_GLOBALS.current_volume, false);
+        role_debugger.masterreset(message, SHARED_GLOBALS, false);
         return;
     } else if (message.content.startsWith(`${prefix}detailedstatus`)) {
-        role_debugger.detailedstatus(message, SHARED_GLOBALS.serverQueue, SHARED_GLOBALS.authorQueue, SHARED_GLOBALS.timestampQueue, SHARED_GLOBALS.loopMarkersQueue, SHARED_GLOBALS.current_volume);
+        role_debugger.detailedstatus(message, SHARED_GLOBALS);
         return;
 
 
@@ -197,7 +194,6 @@ client.on('message', async message => {
         console.log(`Invalid command entered: ${message}`);
     }
 });
-
 
 
 

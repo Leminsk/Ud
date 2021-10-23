@@ -1,4 +1,5 @@
 {
     "prefix": "!",
-    "token": "YoUrToKeNgOeShErE"
+    "token": "YoUrToKeNgOeShErE",
+    "google_api_key" : "GoogleAPIHere"
 }

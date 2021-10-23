@@ -4,9 +4,8 @@ const general_lib = require('./general_functions.js');
 
 
 // end current song/video being played and goes to next element in queue
-function skip(message, shared) {
-    if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    if (!serverQueue) return message.channel.send('There is no song that I could skip.');
+function skip(message, shared, inner_call) {
+    if (!message.member.voice.channel && !inner_call) return message.channel.send('You have to be in a voice channel.');
     general_lib.displayConsoleElement('#', 64);
     console.log("SKIP FUNCTION CALLED");
     try{
@@ -207,10 +206,10 @@ function videoqueue(message, shared, return_message){
 
 
 // empty the queue except for the song playing (song 0)
-function flush(message, shared){
+function flush(message, shared, inner_call){
     general_lib.displayConsoleElement('#', 64);
     console.log("FLUSH FUNCTION CALLED");
-    if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
+    if (!message.member.voice.channel && !inner_call) return message.channel.send('You have to be in a voice channel.');
     var counter = 0;
     while( counter < serverQueue.songs.length-1){
         shared.serverQueue.songs.pop();
@@ -232,7 +231,7 @@ function remove(message, shared){
     var value = message.content.substring(7);
 
     if(value === ""){
-        skip(message, shared);
+        skip(message, shared, true);
     } 
     if(value.charAt(0) === " "){
         value = value.substring(1);
@@ -241,7 +240,7 @@ function remove(message, shared){
         value = Number(value);
         if (value === 0) {
             //return message.channel.send('Can\'t remove song currently playing. (use !skip for that)');
-            skip(message, shared);
+            skip(message, shared, true);
         } else if (value < shared.serverQueue.songs.length){
             var song_name = shared.serverQueue.songs[value].title;
             var song_requester = shared.authorQueue[value];

@@ -5,9 +5,10 @@ const pjson = require('./package.json');
 // role specific
 // attempts to reset variables and queues
 // should be used whenever some error halts the normal workflow
-function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, inner_call){
+function masterreset(message, shared, inner_call){
     general_lib.displayConsoleElement('#', 64);
     console.log("MASTERRESET FUNCTION CALLED");
+
     if (message.member.roles.cache.some(role => role.name === 'Debugador del bot' || role.name === 'Debugador')  ||  inner_call===true) {
         general_lib.displayConsoleElement('-', 46);
         console.log('Called by: ');
@@ -19,30 +20,30 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMark
         general_lib.displayConsoleElement('-', 46);
         try{
             if(typeof serverQueue !== 'undefined'){
-                if(serverQueue.connection.dispatcher !== null){
-                    serverQueue.connection.dispatcher.end();
-                    serverQueue.songs.splice(0, authorQueue.songs.length);
+                if(shared.serverQueue.connection.dispatcher !== null){
+                    shared.serverQueue.connection.dispatcher.end();
+                    shared.serverQueue.songs.splice(0, authorQueue.songs.length);
                 }
             }
             
             console.log('Attempting to reset variables.');
             //serverQueue = queue.get(message.guild.id);
             try{
-                queue_lib.flush(message, serverQueue, authorQueue, timestampQueue);
+                queue_lib.flush(message, shared, true);
             } catch (err) {
                 console.log(err);
             }
             try{
-                queue_lib.skip(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue);
+                queue_lib.skip(message, shared, true);
             } catch (err) {
                 console.log(err);
             }
             // flush doesn't clear everything
-            authorQueue.splice(0, authorQueue.length);// stupid method of clearing array because js is a little bit of a pain in the rear
-            timestampQueue.splice(0, timestampQueue.length);
-            loopMarkersQueue.splice(0, loopMarkersQueue.length);
-            play_status = false;
-            current_volume = initial_volume;
+            shared.authorQueue.splice(0, authorQueue.length);// stupid method of clearing array because js is a little bit of a pain in the rear
+            shared.timestampQueue.splice(0, timestampQueue.length);
+            shared.loopMarkersQueue.splice(0, loopMarkersQueue.length);
+            shared.play_status = false;
+            shared.current_volume = shared.initial_volume;
             console.log('Attempted to reset variables.');
             try{
                 message.member.voice.channel.leave();
@@ -53,7 +54,7 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMark
                 console.log(err);
                 general_lib.displayConsoleElement('-', 46);
                 console.log("Retry of masterreset");
-                masterreset(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume, inner_call);
+                masterreset(message, shared, inner_call);
                 general_lib.displayConsoleElement('*', 46);
             }
             general_lib.displayConsoleElement('#', 64);

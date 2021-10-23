@@ -1,9 +1,15 @@
 const general_lib = require('./general_functions.js');
+const queue_lib = require('./queue_functions.js');
+const role_debugger = require('./role_debugador.js');
+const {
+	google_api_key,
+} = require('./config.json');
+
 const ytdl = require('ytdl-core');
 console.log(`ytdl-core Version: ${ytdl.version}`);
 const YouTube = require('discord-youtube-api');
 console.log(`discord-youtube-api Version: ${YouTube.version}`); // should print 'undefined'
-const youtube = new YouTube('GoogleAPIHere');
+const youtube = new YouTube(google_api_key);
 
 
 //async
@@ -188,7 +194,7 @@ async function play(message, guild, song, shared, args) {
             console.log(`EVENT 'error' DETECTED. ERROR on dispatcher = serverQueue.connection.play(ytdl(song.url))`);
 			console.error(error);
             console.log(`Attempting a reset.`);
-            masterreset(message, serverQueue, shared.authorQueue, shared.timestampQueue, shared.loopMarkersQueue, shared.current_volume, true);
+            role_debugger.masterreset(message, serverQueue, shared, true);
         });
     } else {
         // no timestamp given              /* old playStream */
@@ -215,7 +221,7 @@ async function play(message, guild, song, shared, args) {
             console.log(`EVENT 'error' DETECTED. ERROR on dispatcher = serverQueue.connection.play(ytdl(song.url))`);
 			console.error(error);
             console.log(`Attempting a reset.`);
-            masterreset(message, serverQueue, shared.authorQueue, shared.timestampQueue, shared.loopMarkersQueue, shared.current_volume, true);
+            role_debugger.masterreset(message, serverQueue, shared, true);
         });
         /*.on('finish', () => {
 			console.log('Stream finished, attempting to go to next one.');
