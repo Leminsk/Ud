@@ -1,6 +1,9 @@
 const general_lib = require('./general_functions.js');
 const queue_lib = require('./queue_functions.js');
 const pjson = require('./package.json');
+const Discord = require('discord.js');
+const ytdl = require('ytdl-core');
+const YouTube = require('discord-youtube-api');
 
 // role specific
 // attempts to reset variables and queues
