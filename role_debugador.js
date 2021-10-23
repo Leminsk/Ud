@@ -25,7 +25,11 @@ function masterreset(message, shared, inner_call){
             if(typeof serverQueue !== 'undefined'){
                 if(shared.serverQueue.connection.dispatcher !== null){
                     shared.serverQueue.connection.dispatcher.end();
-                    shared.serverQueue.songs.splice(0, authorQueue.length);
+                    try{
+                        shared.serverQueue.songs.splice(0, shared.authorQueue.length);
+                    } catch(err) {
+                        console.log(err);
+                    }
                 }
             }
             

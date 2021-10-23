@@ -21,7 +21,14 @@ function skip(message, shared, inner_call) {
             shared.skip_loop = false;
             queue = new Map();
             shared.serverQueue = queue.get(message.guild.id);
-            shared.serverQueue.songs.shift();
+            try{
+                shared.serverQueue.songs.shift();
+            } catch (err) {
+                console.log("SKIP FUNCTION FAILED");
+                console.log(err)
+                general_lib.displayConsoleElement('-', 46);
+            }
+            
         }
         /*serverQueue.songs.shift();
         authorQueue.shift();
