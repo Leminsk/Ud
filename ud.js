@@ -38,8 +38,8 @@ const initial_volume = 0.25;
 
 
 var SHARED_GLOBALS = {
-    current_volume : 0.25,
-    serverQueue,
+    current_volume : initial_volume,
+    serverQueue : queue,
 
     // same length as SHARED_GLOBALS.serverQueue.song (their indices refer to same element in videoqueue)
     // stores the username of who entered the !play command
