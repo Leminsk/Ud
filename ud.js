@@ -38,7 +38,7 @@ const initial_volume = 0.25;
 
 
 var SHARED_GLOBALS = {
-    current_volume = initial_volume,
+    current_volume = 0.25,
     serverQueue,
 
     // same length as SHARED_GLOBALS.serverQueue.song (their indices refer to same element in videoqueue)
