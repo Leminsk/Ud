@@ -247,7 +247,7 @@ function remove(message, shared){
             var song_requester = shared.authorQueue[value];
             shared.serverQueue.songs.splice(value, 1);
             shared.authorQueue.splice(value, 1);
-            loopMarkersQueue.splice(value, 1);
+            shared.loopMarkersQueue.splice(value, 1);
             return message.channel.send("Removed from the Queue:\n```| " + value + " | " + song_requester + " | " + song_name + "\n```");
         } else {
             return message.channel.send('Could not find number' + ```\n``` + value + ```\n``` + 'in the Queue.');

@@ -1,4 +1,6 @@
 const general_lib = require('./general_functions.js');
+const queue_lib = require('./queue_functions.js');
+const pjson = require('./package.json');
 
 // role specific
 // attempts to reset variables and queues
@@ -19,7 +21,7 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMark
             if(typeof serverQueue !== 'undefined'){
                 if(serverQueue.connection.dispatcher !== null){
                     serverQueue.connection.dispatcher.end();
-                    serverQueue.songs.splice(0, serverQueue.songs.length);
+                    serverQueue.songs.splice(0, authorQueue.songs.length);
                 }
             }
             
@@ -78,7 +80,7 @@ function masterreset(message, serverQueue, authorQueue, timestampQueue, loopMark
 
 // role specific
 // displays some variavles on console and on chat for debugging purposes
-function detailedstatus(message, serverQueue, authorQueue, timestampQueue, loopMarkersQueue, current_volume){
+function detailedstatus(message, shared){
     general_lib.displayConsoleElement('#', 64);
     console.log("DETAILEDSTATUS FUNCTION CALLED");
     if (message.member.roles.cache.some(role => role.name === 'Debugador del bot' || role.name === 'Debugador')) {
@@ -88,26 +90,31 @@ function detailedstatus(message, serverQueue, authorQueue, timestampQueue, loopM
         general_lib.displayConsoleElement('-', 46);
         try{
             let display_songs = '\nn/a';
-            if(typeof serverQueue !== 'undefined'){
+            if(typeof shared.serverQueue !== 'undefined'){
                 display_songs = '\n';
-                for (var m in serverQueue){
-                    for (var i=0; i<serverQueue[m].length; i++){
+                for (var m in shared.serverQueue){
+                    for (var i=0; i<shared.serverQueue[m].length; i++){
                         display_songs += i + ' {\n';
-                        display_songs += 'title: ' + serverQueue[m][i].title + '\n';
-                        display_songs += 'url: '   + serverQueue[m][i].url   + '\n';
-                        display_songs += 'time: '  + serverQueue[m][i].time  + '\n';
+                        display_songs += 'title: ' + shared.serverQueue[m][i].title + '\n';
+                        display_songs += 'url: '   + shared.serverQueue[m][i].url   + '\n';
+                        display_songs += 'time: '  + shared.serverQueue[m][i].time  + '\n';
                         display_songs += '}\n';
                     }
                 }
             }
             let dashes = '\n----------------------------------------------\n';
-            let detailed_text = '```\n'+'serverQueue.songs:'  + display_songs    + dashes+
-                                        'authorQueue:\n'      + authorQueue      + dashes+
-                                        'timestampQueue:\n'   + timestampQueue   + dashes+
-                                        'loopMarkersQueue:\n' + loopMarkersQueue + dashes+
-                                        'play_status:\n'      + play_status      + dashes+
-                                        'current_volume:\n'   + current_volume   + dashes;
-            detailed_text += `Node.js Version: ${process.version}\n`+`discord.js Version: ${Discord.version}\n`+`ytdl-core Version: ${ytdl.version}\n`+`discord-youtube-api Version: ${YouTube.version}`+'\n```';
+            let detailed_text = '```\n'+'serverQueue.songs:'  + display_songs           + dashes+
+                                        'authorQueue:\n'      + shared.authorQueue      + dashes+
+                                        'timestampQueue:\n'   + shared.timestampQueue   + dashes+
+                                        'loopMarkersQueue:\n' + shared.loopMarkersQueue + dashes+
+                                        'play_status:\n'      + shared.play_status      + dashes+
+                                        'current_volume:\n'   + shared.current_volume   + dashes;
+            detailed_text += `Node.js Version: ${process.version}\n`
+                            +`discord.js Version: ${Discord.version}\n`
+                            +`ytdl-core Version: ${ytdl.version}\n`
+                            +`discord-youtube-api Version: ${YouTube.version}\n`
+                            +`Ud Version: ${pjson.version}`
+                            +'\n```';
             message.channel.send(detailed_text);
 
             ///////////////////////////////////////////////////////////////////////
@@ -115,24 +122,25 @@ function detailedstatus(message, serverQueue, authorQueue, timestampQueue, loopM
             console.log(display_songs);
             general_lib.displayConsoleElement('-', 46);
             console.log('authorQueue:');
-            console.log(authorQueue);
+            console.log(shared.authorQueue);
             general_lib.displayConsoleElement('-', 46);
             console.log('timestampQueue:');
-            console.log(timestampQueue);
+            console.log(shared.timestampQueue);
             general_lib.displayConsoleElement('-', 46);
             console.log('loopMarkersQueue:');
-            console.log(loopMarkersQueue);
+            console.log(shared.loopMarkersQueue);
             general_lib.displayConsoleElement('-', 46);
             console.log('play_status:');
-            console.log(play_status);
+            console.log(shared.play_status);
             general_lib.displayConsoleElement('-', 46);
             console.log('current_volume:');
-            console.log(current_volume);
+            console.log(shared.current_volume);
             general_lib.displayConsoleElement('-', 46);
             console.log(`Node.js Version: ${process.version}`);
             console.log(`discord.js Version: ${Discord.version}`);
             console.log(`ytdl-core Version: ${ytdl.version}`);
             console.log(`discord-youtube-api Version: ${YouTube.version}`);
+            console.log(`Ud version: ${pjson.version}`);
             general_lib.displayConsoleElement('-', 46);
 
             console.log('DETAILEDSTATUS FUNCTION NORMAL EXIT.');
