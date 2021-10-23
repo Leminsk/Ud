@@ -38,25 +38,25 @@ const initial_volume = 0.25;
 
 
 var SHARED_GLOBALS = {
-    current_volume = 0.25,
+    current_volume : 0.25,
     serverQueue,
 
     // same length as SHARED_GLOBALS.serverQueue.song (their indices refer to same element in videoqueue)
     // stores the username of who entered the !play command
-    authorQueue = [],
+    authorQueue : [],
 
     // same length as SHARED_GLOBALS.serverQueue.song (their indices refer to same element in videoqueue)
     // stores timestamps for the START of streams
     // CURRENTLY NOT WORKING
-    timestampQueue = [],
+    timestampQueue : [],
 
     // same length as SHARED_GLOBALS.serverQueue.song (their indices refer to same element in videoqueue)
     // stores a status indicating whether content will loop
-    loopMarkersQueue = [],
+    loopMarkersQueue : [],
 
     dispatcher,         // needs to be global to change the volume
-    skip_loop = false,  // flag for forcing content on loop out of the queues
-    play_status = false // whether a video/song is currently playing
+    skip_loop : false,  // flag for forcing content on loop out of the queues
+    play_status : false // whether a video/song is currently playing
 };
 
 
