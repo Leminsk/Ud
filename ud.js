@@ -21,13 +21,6 @@ const pjson = require('./package.json');
 console.log(`Ud Version: ${pjson.version}`);
 
 
-const ytdl = require('ytdl-core');
-console.log(`ytdl-core Version: ${ytdl.version}`);
-const YouTube = require('discord-youtube-api');
-console.log(`discord-youtube-api Version: ${YouTube.version}`); // should print 'undefined'
-// maybe this doesn't need to be global?
-const youtube = new YouTube('GoogleAPIHere');
-
 const client = new Discord.Client();
 
 // save songs/videos

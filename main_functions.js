@@ -1,5 +1,9 @@
 const general_lib = require('./general_functions.js');
-
+const ytdl = require('ytdl-core');
+console.log(`ytdl-core Version: ${ytdl.version}`);
+const YouTube = require('discord-youtube-api');
+console.log(`discord-youtube-api Version: ${YouTube.version}`); // should print 'undefined'
+const youtube = new YouTube('GoogleAPIHere');
 
 
 //async
