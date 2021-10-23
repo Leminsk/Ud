@@ -18,9 +18,14 @@ function volume(message, shared){
         value = Number(value);
         if (value >= 0 && value <= 200){
             shared.current_volume = value/100;
-            if (shared.dispatcher != null){
-                shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+            try{
+                if (typeof shared.dispatcher !== 'undefined'){
+                    shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+                }
+            } catch (err) {
+                console.log('Dispatcher unitialized on volume(). Setting current_volume for later...');
             }
+            
             
             text_value = shared.current_volume*100;
             return message.channel.send(`Current volume: ${text_value}`);
@@ -41,9 +46,16 @@ function vup(message, shared) {
     if (shared.current_volume >= 2) {
         shared.current_volume = 2;
     }
-    if (shared.dispatcher != null){
-        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+
+    try{
+        if (typeof shared.dispatcher !== 'undefined'){
+            shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+        }
+    } catch(err) {
+        console.log('Dispatcher unitialized on vup(). Setting current_volume for later...');
     }
+    
+
     text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -57,9 +69,15 @@ function vUP(message, shared) {
     if (shared.current_volume >= 2) {
         shared.current_volume = 2;
     }
-    if (shared.dispatcher != null){
-        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+
+    try{
+        if (typeof shared.dispatcher !== 'undefined'){
+            shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+        }
+    } catch(err) {
+        console.log('Dispatcher unitialized on vUP(). Setting current_volume for later...');
     }
+
     text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -73,9 +91,15 @@ function vdown(message, shared) {
     if (shared.current_volume <= 0) {
         shared.current_volume = 0;
     }
-    if (shared.dispatcher != null){
-        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+
+    try{
+        if (typeof shared.dispatcher !== 'undefined'){
+            shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+        }
+    } catch(err) {
+        console.log('Dispatcher unitialized on vdown(). Setting current_volume for later...');
     }
+
     text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -89,9 +113,15 @@ function vDOWN(message, shared) {
     if (shared.current_volume <= 0) {
         shared.current_volume = 0;
     }
-    if (shared.dispatcher != null){
-        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+    
+    try{
+        if (typeof shared.dispatcher !== 'undefined'){
+            shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+        }
+    } catch(err) {
+        console.log('Dispatcher unitialized on vDOWN(). Setting current_volume for later...');
     }
+
     text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
@@ -100,10 +130,14 @@ function vDOWN(message, shared) {
 // reset volume to its initial value (0.25)
 function vreset(message, shared){
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    shared.current_volume = initial_volume;
+    shared.current_volume = shared.initial_volume;
 
-    if (shared.dispatcher != null){
-        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+    try{
+        if (typeof shared.dispatcher !== 'undefined'){
+            shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+        }
+    } catch(err) {
+        console.log('Dispatcher unitialized on vreset(). Setting current_volume for later...');
     }
 
     text_value = general_lib.round2decimal(shared.current_volume*100);
