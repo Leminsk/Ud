@@ -15,13 +15,13 @@ function skip(message, shared, inner_call) {
             console.log('Music ended?.');
             console.log("SKIP FUNCTION NORMAL EXIT");
         } catch (err) {
-            queue = new Map();
-            shared.serverQueue = queue.get(message.guild.id);
-            shared.serverQueue.songs.shift();
             shared.authorQueue.shift();
             shared.loopMarkersQueue.shift();
             shared.timestampQueue.shift();
             shared.skip_loop = false;
+            queue = new Map();
+            shared.serverQueue = queue.get(message.guild.id);
+            shared.serverQueue.songs.shift();
         }
         /*serverQueue.songs.shift();
         authorQueue.shift();
