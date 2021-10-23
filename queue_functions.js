@@ -27,6 +27,7 @@ function skip(message, shared, inner_call) {
                 console.log("SKIP FUNCTION FAILED");
                 console.log(err)
                 general_lib.displayConsoleElement('-', 46);
+                return;
             }
             
         }

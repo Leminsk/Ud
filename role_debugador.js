@@ -46,9 +46,9 @@ function masterreset(message, shared, inner_call){
                 console.log(err);
             }
             // flush doesn't clear everything
-            shared.authorQueue.splice(0, authorQueue.length);// stupid method of clearing array because js is a little bit of a pain in the rear
-            shared.timestampQueue.splice(0, timestampQueue.length);
-            shared.loopMarkersQueue.splice(0, loopMarkersQueue.length);
+            shared.authorQueue.splice(0, shared.authorQueue.length);// stupid method of clearing array because js is a little bit of a pain in the rear
+            shared.timestampQueue.splice(0, shared.timestampQueue.length);
+            shared.loopMarkersQueue.splice(0, shared.loopMarkersQueue.length);
             shared.play_status = false;
             shared.current_volume = shared.initial_volume;
             console.log('Attempted to reset variables.');
