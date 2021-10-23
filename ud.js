@@ -54,7 +54,7 @@ var SHARED_GLOBALS = {
     // stores a status indicating whether content will loop
     loopMarkersQueue : [],
 
-    dispatcher,         // needs to be global to change the volume
+    dispatcher : [],         // needs to be global to change the volume
     skip_loop : false,  // flag for forcing content on loop out of the queues
     play_status : false // whether a video/song is currently playing
 };
