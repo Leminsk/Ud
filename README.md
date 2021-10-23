@@ -2,7 +2,7 @@
 Another simple youtube-based (ytdl) audio content streaming Discord bot.  
 
 ## Main Requirements  
-- `Node.js 14 or above` (WARNING: ytdl-core has some functionalities, like `resume()` and `pause()`, that break in Node.js 15 and above as of September 2021)
+- `Node.js 14 or above` (WARNING: ytdl-core has some functionalities, like `resume()` and `pause()`, that break in Node.js 15 and above as of October 2021)
 - `discord.js` Version: 12.5.3
 - `ytdl-core` Version: 4.9.1 (version 4.8.3 also works)
 - `discord-youtube-api`
@@ -38,9 +38,10 @@ All commands need to be preceeded by an '!' (exclamation mark). These are the co
 - `vDOWN` OR `VDOWN`: globally decreases volume by 50% (x0.5).
 - `vol [value]`: sets global volume to value. Ranges from 0 (mute) to 200 (arbitrary maximum).
   - `!vol80` OR `!vol 80`: sets global volume to 80.
+- `volume [value]`: same as `vol`
 - `vreset`: resets global volume to its default value of 25.
 
-## Role Specific Commands
+## Role Specific Commands (Debugador)
 Like the previous commands, these must also be preceeded by an '!'. However these commands will only have effect if the user has a specific role called "Debugador del bot" or "Debugador":
 - `detailedstatus`: displays some internal variables on chat to aid in debugging
 - `masterreset`: this will reset Ud to its initial state as if it had just started running from terminal. Use this if Ud stopped working properly but is still active (this command's function is also used internally to handle some connection errors)
