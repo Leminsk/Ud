@@ -1,6 +1,6 @@
 {
   "name": "ud",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Youtube Audio Player Bot",
   "main": "ud.js",
   "author": "Matheus Lemos",

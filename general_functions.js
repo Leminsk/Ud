@@ -38,4 +38,12 @@ function displayConsoleElement(char, amount){
 }
 
 
-module.exports = { secondsToHms, round2decimal, displayConsoleElement, displayConsoleElement };
+/* display variables on console */
+function displayVariables(internal_vars){
+    internal_vars.forEach(element => {
+        console.log( `${Object.keys({element})[0]} : element` );
+    });
+}
+
+
+module.exports = { secondsToHms, round2decimal, displayConsoleElement, displayConsoleElement, displayVariables };

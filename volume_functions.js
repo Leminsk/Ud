@@ -1,21 +1,28 @@
 const general_lib = require('./general_functions.js');
 
 // sets volume to a certain percentage (minimum 0, maximum 200)
-function volume(message, dispatcher, current_volume){
+function volume(message, shared){
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
+
     var value = message.content.substring(4);
+
+    if (value.includes("ume")){
+        value = value.substring(3);
+    }
+
     if(value.charAt(0) === " "){
         value = value.substring(1);
     }
+
     if(/^([0-9]+(\.[0-9]+)?|Infinity)$/.test(value)){
         value = Number(value);
         if (value >= 0 && value <= 200){
-            global.current_volume = value/100;
-            if (dispatcher != null){
-                dispatcher.setVolumeLogarithmic(global.current_volume);
+            shared.current_volume = value/100;
+            if (shared.dispatcher != null){
+                shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
             }
             
-            text_value = global.current_volume*100;
+            text_value = shared.current_volume*100;
             return message.channel.send(`Current volume: ${text_value}`);
         } else {
             return message.channel.send('Invalid volume range. (0.00 ~ 200.00)');
@@ -27,77 +34,79 @@ function volume(message, dispatcher, current_volume){
 
 
 // increase current volume by 20%
-function vup(message, dispatcher, current_volume) {
+function vup(message, shared) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    global.current_volume = 1.2*global.current_volume;
+    shared.current_volume = 1.2*shared.current_volume;
     // ceiling value
-    if (global.current_volume >= 2) {
-        global.current_volume = 2;
+    if (shared.current_volume >= 2) {
+        shared.current_volume = 2;
     }
-    if (dispatcher != null){
-        dispatcher.setVolumeLogarithmic(global.current_volume);
+    if (shared.dispatcher != null){
+        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
     }
-    text_value = general_lib.round2decimal(global.current_volume*100);
+    text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
 
 
 // increase current volume by 50%
-function vUP(message, dispatcher, current_volume) {
+function vUP(message, shared) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    global.current_volume = 1.5*global.current_volume;
+    shared.current_volume = 1.5*shared.current_volume;
     // ceiling value
-    if (global.current_volume >= 2) {
-        global.current_volume = 2;
+    if (shared.current_volume >= 2) {
+        shared.current_volume = 2;
     }
-    if (dispatcher != null){
-        dispatcher.setVolumeLogarithmic(global.current_volume);
+    if (shared.dispatcher != null){
+        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
     }
-    text_value = general_lib.round2decimal(global.current_volume*100);
+    text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
 
 
 // decrease current volume by 20%
-function vdown(message, dispatcher, current_volume) {
+function vdown(message, shared) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    global.current_volume = 0.8*global.current_volume;
+    shared.current_volume = 0.8*shared.current_volume;
     // floor value
-    if (global.current_volume <= 0) {
-        global.current_volume = 0;
+    if (shared.current_volume <= 0) {
+        shared.current_volume = 0;
     }
-    if (dispatcher != null){
-        dispatcher.setVolumeLogarithmic(global.current_volume);
+    if (shared.dispatcher != null){
+        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
     }
-    text_value = general_lib.round2decimal(global.current_volume*100);
+    text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
 
 
 // decrease current volume by 50%
-function vDOWN(message, dispatcher, current_volume) {
+function vDOWN(message, shared) {
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    global.current_volume = 0.5*global.current_volume;
+    shared.current_volume = 0.5*shared.current_volume;
     // floor value
-    if (global.current_volume <= 0) {
-        global.current_volume = 0;
+    if (shared.current_volume <= 0) {
+        shared.current_volume = 0;
     }
-    if (dispatcher != null){
-        dispatcher.setVolumeLogarithmic(global.current_volume);
+    if (shared.dispatcher != null){
+        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
     }
-    text_value = general_lib.round2decimal(global.current_volume*100);
+    text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
 
 
-// reset volume to its initial value (100% or 1)
-function vreset(message, dispatcher, current_volume){
+// reset volume to its initial value (0.25)
+function vreset(message, shared){
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
-    global.current_volume = initial_volume;
-    if (dispatcher != null){
-        dispatcher.setVolumeLogarithmic(global.current_volume);
+    shared.current_volume = initial_volume;
+
+    if (shared.dispatcher != null){
+        shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
     }
-    text_value = general_lib.round2decimal(global.current_volume*100);
+
+    text_value = general_lib.round2decimal(shared.current_volume*100);
     return message.channel.send(`Current volume: ${text_value}`);
 }
 
