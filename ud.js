@@ -17,6 +17,8 @@ const volume_lib = require('./volume_functions.js');
 const queue_lib = require('./queue_functions.js');
 const main_lib = require('./main_functions.js');
 const role_debugger = require('./role_debugador.js');
+const pjson = require('./package.json');
+console.log(`Ud Version: ${pjson.version}`);
 
 
 const ytdl = require('ytdl-core');
