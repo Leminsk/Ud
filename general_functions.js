@@ -44,7 +44,7 @@ function displayVariables(internal_vars, shared_vars){
     displayConsoleElement('=', 46);
 
     internal_vars.forEach(element => {
-        console.log( `${Object.keys({element})[0]} : ${element}` );
+        console.log( `${Object.keys(element)[0]} : ${element}` );
     });
 
     displayConsoleElement('-', 46);
