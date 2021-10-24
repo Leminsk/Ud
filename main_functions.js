@@ -17,6 +17,7 @@ async function execute(message, shared) {
     general_lib.displayConsoleElement('/', 64);
     console.log('EXECUTE FUNCTION CALLED');
     let args = [];
+
     // requested video search
     if (message.content.indexOf('\'') > -1 || message.content.indexOf('"') > -1) {
         args.push("!play");
@@ -29,15 +30,17 @@ async function execute(message, shared) {
     } else { // defaults to direct link
         args = message.content.split(' ');
     }
+
     // not accepting timestamps, 'begin' option of node ytdl is NOT working properly as of 2021-04-18
     if (args.length === 1 || args.length >= 3){
         return message.channel.send('Sorry, could not understand that.');
     } 
+
     const voiceChannel = message.member.voice.channel;
-	if (!voiceChannel) return message.channel.send('You need to be in a voice channel to play music.');
+	if (!voiceChannel) return message.channel.send('You need to be in a voice channel to play something.');
 	const permissions = voiceChannel.permissionsFor(message.client.user);
 	if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-		return message.channel.send('I need the permissions to join and speak in your voice channel!');
+		return message.channel.send('I don\'t have the permissions to join and speak in your voice channel.');
 	}
 
     var songInfo;
@@ -66,7 +69,7 @@ async function execute(message, shared) {
             videosearch = await youtube.searchVideos(args[args.length-1].toString().replace(/,/g,' '));
             songInfo = await ytdl.getInfo(videosearch.url);
         } catch (err){
-            console.log(`Error in function 'execute'. User may have given a bad argument, ytdl.getInfo went wrong, songInfo.videoDetails went wrong or searchVideos went wrong.`)
+            console.log(`Error in function 'execute'. User may have given a bad argument, ytdl.getInfo went wrong, or searchVideos went wrong.`)
             console.log(err);
             general_lib.displayConsoleElement('-', 32);
             console.log(videosearch);
@@ -75,7 +78,7 @@ async function execute(message, shared) {
             //console.log('----------------------------------');
             console.log(args);
             general_lib.displayConsoleElement('-', 32);
-            return message.channel.send('Something went wrong when trying to search for that.');
+            return message.channel.send('Something went wrong when trying to search for that. Maybe try using a direct YouTube link?');
         }
     }
 
@@ -123,8 +126,11 @@ async function execute(message, shared) {
             // Printing the error message if the bot fails to join the voicechat
             console.log(`ERROR in function 'execute'. Either couldn't join voiceChannel or play function went wrong in some way.`)
 			console.log(err);
+            general_lib.displayConsoleElement('$', 64);
+            console.log(`Attempting a masterreset`);
 			shared.queue.delete(message.guild.id);
-			return message.channel.send(err);
+			role_debugger.masterreset(message, shared, true);
+            return;
         }
         // TODO
         // maybe implement nickname
@@ -152,7 +158,11 @@ async function execute(message, shared) {
         console.log(shared.loopMarkersQueue);
         general_lib.displayConsoleElement('/', 64);
         let vq = queue_lib.videoqueue(message, shared, false);
-		return message.channel.send(`Added to the queue: ${song.title}\n\n Current Queue:\n` + '```\n' + vq +'\n```');
+		return message.channel.send(`Added to the queue: ${song.title}\n\n Current Queue:\n`+
+                                                                            '```\n' +
+                                                                            '| i | user | l | (time) title'+ 
+                                                                            vq +
+                                                                            '\n```');
 	}
 
 }
