@@ -19,8 +19,8 @@ function skip(message, shared, inner_call) {
             shared.loopMarkersQueue.shift();
             shared.timestampQueue.shift();
             shared.skip_loop = false;
-            queue = new Map();
-            shared.serverQueue = queue.get(message.guild.id);
+            shared.queue = new Map();
+            shared.serverQueue = shared.queue.get(message.guild.id);
             try{
                 shared.serverQueue.songs.shift();
             } catch (err) {

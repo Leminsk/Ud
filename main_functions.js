@@ -109,7 +109,7 @@ async function execute(message, shared) {
 			playing: true,
 		};
         // Setting the queue using our contract
-		queue.set(message.guild.id, queueContract);
+		shared.queue.set(message.guild.id, queueContract);
         // Pushing the song to our songs array
         queueContract.songs.push(song);
         console.log(message.author["lastMessage"]["member"]["user"]["username"]);
@@ -123,7 +123,7 @@ async function execute(message, shared) {
             // Printing the error message if the bot fails to join the voicechat
             console.log(`ERROR in function 'execute'. Either couldn't join voiceChannel or play function went wrong in some way.`)
 			console.log(err);
-			queue.delete(message.guild.id);
+			shared.queue.delete(message.guild.id);
 			return message.channel.send(err);
         }
         // TODO
@@ -162,11 +162,11 @@ async function execute(message, shared) {
 async function play(message, guild, song, shared, args) {
     general_lib.displayConsoleElement('#', 64);
     console.log("PLAY FUNCTION CALLED");
-	const serverQueue = await queue.get(guild.id);
+	const serverQueue = await shared.queue.get(guild.id);
 
 	if (!song) {
 		serverQueue.voiceChannel.leave();
-        queue.delete(guild.id);
+        shared.queue.delete(guild.id);
         shared.play_status = false;
 		return message.channel.send(`No more content to play. (Queue empty)`);
 	}

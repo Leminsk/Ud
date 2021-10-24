@@ -23,15 +23,18 @@ console.log(`Ud Version: ${pjson.version}`);
 
 const client = new Discord.Client();
 
-// save songs/videos
-var queue = new Map();
+
+//var queue = new Map();
 
 
 
 var SHARED_GLOBALS = {
     initial_volume : 0.25,
     current_volume : 0.25,
-    serverQueue : queue,
+    // forgot the difference between these two, but I think 'queue' is only for stream content and is more of a temp_var, while serverQueue has more data (need to confirm this)
+    serverQueue : new Map(),
+    // save songs/videos
+    queue : new Map(),
 
     // same length as SHARED_GLOBALS.serverQueue.song (their indices refer to same element in videoqueue)
     // stores the username of who entered the !play command
@@ -110,7 +113,7 @@ client.on('message', async message => {
     // check for prefix
     if (!message.content.startsWith(prefix)) return;
 
-    SHARED_GLOBALS.serverQueue = queue.get(message.guild.id);
+    SHARED_GLOBALS.serverQueue = SHARED_GLOBALS.queue.get(message.guild.id);
     
     // check for commands
     if (message.content.startsWith(`${prefix}play`)) {
