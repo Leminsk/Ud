@@ -181,7 +181,7 @@ function videoqueue(message, shared, return_message){
                     index_padding += " "
                 }
 
-                vq = vq + "|  " + index_padding + i + "  |  " + space_padding + shared.authorQueue[i] + "  |  " + loop_padding + loop_string + "  | " + "(" + converted_time + ") "+ shared.serverQueue[m][i].title + "\n";
+                vq = vq + "| " + index_padding + i + " | " + space_padding + shared.authorQueue[i] + " | " + loop_padding + loop_string + " | " + "(" + converted_time + ") "+ shared.serverQueue[m][i].title + "\n";
             }
         }
 
@@ -197,7 +197,7 @@ function videoqueue(message, shared, return_message){
             console.log("VIDEOQUEUE FUNCTION VALUE RETURNED");
             return vq;
         }
-        
+
     } catch (err) {
         general_lib.displayConsoleElement('*', 46);
         console.log("VIDEOQUEUE FUNCTION FAILED");
