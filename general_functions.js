@@ -39,15 +39,23 @@ function displayConsoleElement(char, amount){
 
 
 /* display variables on console */
-function displayVariables(internal_vars){
+function displayVariables(internal_vars, shared_vars){
 
-    displayConsoleElement('-', 46);
+    displayConsoleElement('=', 46);
 
     internal_vars.forEach(element => {
         console.log( `${Object.keys({element})[0]} : ${element}` );
     });
 
     displayConsoleElement('-', 46);
+
+    for (var key in shared_vars) {
+        if (shared_vars.hasOwnProperty(key)) {
+            console.log(key + " : " + shared_vars[key]);
+        }
+    }
+
+    displayConsoleElement('=', 46);
 
 }
 

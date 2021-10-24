@@ -201,10 +201,9 @@ function videoqueue(message, shared, return_message){
         general_lib.displayConsoleElement('*', 46);
         console.log("VIDEOQUEUE FUNCTION FAILED");
 
-        var inner_vars =  { message, return_message, vq, user_lengths, loop_lengths, max_username_length, max_loop_length };
-        var output_vars = { shared, inner_vars };
+        var inner_vars =  [ message, return_message, vq, user_lengths, loop_lengths, max_username_length, max_loop_length ];
 
-        general_lib.displayVariables(output_vars);
+        general_lib.displayVariables(inner_vars, shared);
         
         console.log(err);
         general_lib.displayConsoleElement('*', 46);
