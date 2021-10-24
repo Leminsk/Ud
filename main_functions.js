@@ -90,11 +90,11 @@ async function execute(message, shared) {
     console.log('serverQueue BELOW:')
 
     shared.authorQueue.push(message.author["lastMessage"]["member"]["user"]["username"]);//authorQueue[authorQueue.length] = message.author["username"];
-    loopMarkersQueue.push(0);
+    shared.loopMarkersQueue.push(0);
     if (args.length === 3){
-        timestampQueue.push(args[1]);
+        shared.timestampQueue.push(args[1]);
     } else {
-        timestampQueue.push('0');
+        shared.timestampQueue.push('0');
     }
 
 
@@ -138,7 +138,7 @@ async function execute(message, shared) {
         console.log(shared.loopMarkersQueue);
         general_lib.displayConsoleElement('/', 64);
 	} else {
-        serverQueue.songs.push(song);
+        shared.serverQueue.songs.push(song);
         // TODO
         // maybe implement nickname
         // 
