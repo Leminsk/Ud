@@ -241,7 +241,15 @@ async function play(message, guild, song, shared, args) {
     general_lib.displayConsoleElement('#', 64);
 
     if(shared.loopMarkersQueue[0] >= 0 ){
-        return message.channel.send(`Now Playing...\n`+ '```\n' + song.title + '\n```' + `Current Queue:\n` + '```\n' + vq +'\n```');
+        return message.channel.send(`Now Playing...\n`+ 
+                                    '```\n' + 
+                                    song.title + 
+                                    '\n```' + 
+                                    `Current Queue:\n` + 
+                                    '```\n' +
+                                    '| i | user | l | (time) title'+ 
+                                    vq +
+                                    '\n```');
     }
 
 }
