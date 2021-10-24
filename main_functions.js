@@ -185,6 +185,7 @@ async function play(message, guild, song, shared, args) {
                 shared.authorQueue.shift();
                 shared.timestampQueue.shift();
                 shared.loopMarkersQueue.shift();
+                shared.serverQueue = serverQueue;
             } else {
                 console.log(`On indefinite loop...`);
             }
@@ -194,7 +195,7 @@ async function play(message, guild, song, shared, args) {
             console.log(`EVENT 'error' DETECTED. ERROR on dispatcher = serverQueue.connection.play(ytdl(song.url))`);
 			console.error(error);
             console.log(`Attempting a reset.`);
-            role_debugger.masterreset(message, serverQueue, shared, true);
+            role_debugger.masterreset(message, shared, true);
         });
     } else {
         // no timestamp given              /* old playStream */
@@ -212,6 +213,7 @@ async function play(message, guild, song, shared, args) {
                 shared.authorQueue.shift();
                 shared.timestampQueue.shift();
                 shared.loopMarkersQueue.shift();
+                shared.serverQueue = serverQueue;
             } else { // negative
                 console.log(`On indefinite loop...`);
             }
@@ -221,7 +223,7 @@ async function play(message, guild, song, shared, args) {
             console.log(`EVENT 'error' DETECTED. ERROR on dispatcher = serverQueue.connection.play(ytdl(song.url))`);
 			console.error(error);
             console.log(`Attempting a reset.`);
-            role_debugger.masterreset(message, serverQueue, shared, true);
+            role_debugger.masterreset(message, shared, true);
         });
         /*.on('finish', () => {
 			console.log('Stream finished, attempting to go to next one.');
@@ -232,8 +234,9 @@ async function play(message, guild, song, shared, args) {
     }
     
     shared.play_status = true;
-    shared.dispatcher.setVolumeLogarithmic(current_volume);
-    let vq = queue_lib.videoqueue(message, serverQueue, false, authorQueue, loopMarkersQueue);
+    shared.dispatcher.setVolumeLogarithmic(shared.current_volume);
+    shared.serverQueue = serverQueue;
+    let vq = queue_lib.videoqueue(message, shared, false);
     console.log("PLAY FUNCTION NORMAL EXIT");
     general_lib.displayConsoleElement('#', 64);
 
