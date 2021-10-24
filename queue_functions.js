@@ -135,9 +135,9 @@ function videoqueue(message, shared, return_message){
     console.log("VIDEOQUEUE FUNCTION CALLED");
     if (!message.member.voice.channel) return message.channel.send('You have to be in a voice channel.');
     try{
-        let vq = "";
-        let user_lengths = [];
-        let loop_lengths = []
+        var vq = "";
+        var user_lengths = [];
+        var loop_lengths = []
         
         for (var i=0; i<shared.authorQueue.length; i++){
 
@@ -150,8 +150,8 @@ function videoqueue(message, shared, return_message){
             }
             
         }
-        let max_username_length = Math.max.apply(Math, user_lengths);
-        let max_loop_length = Math.max.apply(Math, loop_lengths);
+        var max_username_length = Math.max.apply(Math, user_lengths);
+        var max_loop_length = Math.max.apply(Math, loop_lengths);
 
         for (var m in shared.serverQueue){
             for (var i=0; i<shared.serverQueue[m].length; i++){
@@ -200,7 +200,7 @@ function videoqueue(message, shared, return_message){
     } catch (err) {
         general_lib.displayConsoleElement('*', 46);
         console.log("VIDEOQUEUE FUNCTION FAILED");
-        
+
         var inner_vars =  { message, return_message, vq, user_lengths, loop_lengths, max_username_length, max_loop_length };
         var output_vars = { shared, inner_vars };
 
