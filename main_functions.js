@@ -158,11 +158,7 @@ async function execute(message, shared) {
         console.log(shared.loopMarkersQueue);
         general_lib.displayConsoleElement('/', 64);
         let vq = queue_lib.videoqueue(message, shared, false);
-		return message.channel.send(`Added to the queue: ${song.title}\n\n Current Queue:\n`+
-                                                                            '```\n' +
-                                                                            '| i | user | l | (time) title'+ 
-                                                                            vq +
-                                                                            '\n```');
+		return message.channel.send(`Added to the queue: ${song.title}\n\n Current Queue:\n`+ '```\n' + vq + '\n```');
 	}
 
 }
@@ -257,7 +253,6 @@ async function play(message, guild, song, shared, args) {
                                     '\n```' + 
                                     `Current Queue:\n` + 
                                     '```\n' +
-                                    '| i | user | l | (time) title'+ 
                                     vq +
                                     '\n```');
     }
