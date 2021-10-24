@@ -41,14 +41,14 @@ function displayConsoleElement(char, amount){
 /* display variables on console */
 function displayVariables(internal_vars){
 
-    general_lib.displayConsoleElement('-', 46);
+    displayConsoleElement('-', 46);
 
     internal_vars.forEach(element => {
         console.log( `${Object.keys({element})[0]} : ${element}` );
     });
 
-    general_lib.displayConsoleElement('-', 46);
-    
+    displayConsoleElement('-', 46);
+
 }
 
 
