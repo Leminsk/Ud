@@ -56,9 +56,9 @@ function stop(message, shared) {
     console.log("STOP FUNCTION CALLED");
     try{
         shared.serverQueue.connection.dispatcher.end(); //.stopPlaying() replaces .end()?
-        shared.authorQueue = authorQueue.splice(0, authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
-        shared.loopMarkersQueue = loopMarkersQueue.splice(0, loopMarkersQueue.length);
-        shared.timestampQueue = timestampQueue.splice(0, timestampQueue.length);
+        shared.authorQueue = shared.authorQueue.splice(0, shared.authorQueue.length); // stupid method of clearing array because js is a little bit of a pain in the rear
+        shared.loopMarkersQueue = shared.loopMarkersQueue.splice(0, shared.loopMarkersQueue.length);
+        shared.timestampQueue = shared.timestampQueue.splice(0, shared.timestampQueue.length);
         shared.serverQueue.songs = [];
         /*play(message, message.guild, serverQueue.songs[0], authorQueue);*/
         console.log('All operations halted.');
@@ -89,7 +89,7 @@ function pause(message, shared) {
     try{
         shared.serverQueue.connection.dispatcher.pause(true);
         console.log("PAUSE FUNCTION NORMAL EXIT");
-        play_status = false;
+        shared.play_status = false;
         return message.channel.send('Song paused.');
     } catch (err) {
         general_lib.displayConsoleElement('*', 46);
