@@ -135,7 +135,7 @@ client.on('message', async message => {
         queue_lib.pause(message, SHARED_GLOBALS);
         return;
     } else if (message.content.startsWith(`${prefix}resume`)) {
-        queue_lib.resume(message, SHARED_GLOBALS.serverQueue);
+        queue_lib.resume(message, SHARED_GLOBALS);
         return;
     } else if (message.content.startsWith(`${prefix}queue`)) {
         queue_lib.videoqueue(message, SHARED_GLOBALS, true);
